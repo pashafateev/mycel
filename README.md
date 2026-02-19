@@ -1,10 +1,12 @@
-# Temporal x OpenClaw Bridge (Phase 1 Tracer)
+# Temporal x OpenClaw Bridge (TypeScript PoC)
 
-Minimal TypeScript bridge that:
-- starts/targets Temporal `AgenticWorkflow` on task queue `temporal-agent-harness`
-- injects system prompt content from workspace docs (`SOUL.md`, `USER.md`, `AGENTS.md`, `MEMORY.md`)
-- sends user messages via workflow Update `user_input`
-- exposes a tracer webhook `POST /reply` to log outgoing reply payloads
+This PoC keeps OpenClaw as the Telegram-facing layer and runs conversation logic in Temporal TypeScript workflows.
+
+Included components:
+- Bridge server (`src/index.ts`)
+- Conversation workflow with Update/query handlers + `ContinueAsNew` (`src/workflows/conversation.ts`)
+- Mock LLM activity with routing simulation (`src/activities/mock-llm.ts`)
+- Temporal worker (`src/worker.ts`)
 
 ## Endpoints
 
@@ -18,19 +20,18 @@ Minimal TypeScript bridge that:
 Optional env vars:
 - `TEMPORAL_HOST` (default `localhost:7233`)
 - `TEMPORAL_NAMESPACE` (default `default`)
-- `TEMPORAL_TASK_QUEUE` (default `temporal-agent-harness`)
-- `TEMPORAL_WORKFLOW_TYPE` (default `AgenticWorkflow`)
+- `TEMPORAL_TASK_QUEUE` (default `mycel-bridge`)
+- `TEMPORAL_WORKFLOW_TYPE` (default `conversationWorkflow`)
+- `CONTINUE_AS_NEW_TURN_LIMIT` (default `6`)
 - `BRIDGE_PORT` (default `3001`)
 - `OPENCLAW_WORKSPACE_ROOT` (default `/Users/admin/.openclaw/workspace`)
-- `AGENT_CWD` (default workspace root)
-- `MODEL_PROVIDER` (default: `anthropic` if `ANTHROPIC_API_KEY` exists, else `openai`)
-- `MODEL_NAME` (default based on provider)
 
 ## Run
 
 ```bash
 npm install
-npm run dev
+npm run dev:worker
+npm run dev:bridge
 ```
 
 Example test:
@@ -43,4 +44,18 @@ curl -s localhost:3001/session/start \
 curl -s localhost:3001/session/send \
   -H 'content-type: application/json' \
   -d '{"sessionId":"demo","message":"Give me a one-line response"}'
+```
+
+Response includes mock routing info:
+
+```json
+{
+  "turnId": "turn-2",
+  "reply": "[mock:junior/simple] ...",
+  "routing": {
+    "complexity": "simple",
+    "tier": "junior",
+    "route_reason": "Simple but non-trivial request; route to junior tier."
+  }
+}
 ```

@@ -8,58 +8,24 @@ import {
   Connection,
   ConnectionOptions,
   WorkflowHandle,
-  WorkflowUpdateStage,
 } from "@temporalio/client";
 
-type ConversationItem = {
-  type: string;
-  seq: number;
-  content?: string;
-  turn_id?: string;
-};
-
-type SessionConfiguration = {
-  base_instructions?: string;
-  user_instructions?: string;
-  model: {
-    provider: string;
-    model: string;
-    temperature: number;
-    max_tokens: number;
-    context_window: number;
-  };
-  tools: {
-    enabled_tools: string[];
-  };
-  approval_mode?: string;
-  cwd?: string;
-  session_source?: string;
-};
-
-type WorkflowInput = {
-  conversation_id: string;
-  user_message: string;
-  config: SessionConfiguration;
-};
+import {
+  CONVERSATION_WORKFLOW_TYPE,
+  QUERY_CONVERSATION_ITEMS,
+  type ConversationItem,
+  type ConversationWorkflowInput,
+  type UserMessageAccepted,
+  UPDATE_USER_INPUT,
+} from "./contracts";
 
 const TEMPORAL_HOST = process.env.TEMPORAL_HOST ?? "localhost:7233";
 const TEMPORAL_NAMESPACE = process.env.TEMPORAL_NAMESPACE ?? "default";
-const TASK_QUEUE = process.env.TEMPORAL_TASK_QUEUE ?? "temporal-agent-harness";
-const WORKFLOW_TYPE = process.env.TEMPORAL_WORKFLOW_TYPE ?? "AgenticWorkflow";
+const TASK_QUEUE = process.env.TEMPORAL_TASK_QUEUE ?? "mycel-bridge";
+const WORKFLOW_TYPE = process.env.TEMPORAL_WORKFLOW_TYPE ?? CONVERSATION_WORKFLOW_TYPE;
 const BRIDGE_PORT = Number(process.env.BRIDGE_PORT ?? 3001);
 const WORKSPACE_ROOT = process.env.OPENCLAW_WORKSPACE_ROOT ?? "/Users/admin/.openclaw/workspace";
-const CWD = process.env.AGENT_CWD ?? WORKSPACE_ROOT;
-const MODEL_PROVIDER = process.env.MODEL_PROVIDER ?? detectDefaultProvider();
-const MODEL_NAME =
-  process.env.MODEL_NAME ??
-  (MODEL_PROVIDER === "anthropic" ? "claude-sonnet-4-20250514" : "gpt-4o-mini");
-
-function detectDefaultProvider(): string {
-  if (process.env.ANTHROPIC_API_KEY) {
-    return "anthropic";
-  }
-  return "openai";
-}
+const CONTINUE_AS_NEW_TURN_LIMIT = Number(process.env.CONTINUE_AS_NEW_TURN_LIMIT ?? 6);
 
 async function buildSystemPrompt(): Promise<string> {
   const files = ["SOUL.md", "USER.md", "AGENTS.md", "MEMORY.md"];
@@ -101,27 +67,12 @@ async function ensureWorkflow(
     await existing.describe();
     return existing;
   } catch {
-    const baseInstructions = await buildSystemPrompt();
-    const input: WorkflowInput = {
-      conversation_id: workflowId,
-      user_message: initialMessage,
-      config: {
-        base_instructions: baseInstructions,
-        user_instructions: "OpenClaw bridge tracer mode",
-        model: {
-          provider: MODEL_PROVIDER,
-          model: MODEL_NAME,
-          temperature: 0.7,
-          max_tokens: 4096,
-          context_window: 128000,
-        },
-        tools: {
-          enabled_tools: [],
-        },
-        approval_mode: "never",
-        cwd: CWD,
-        session_source: "openclaw-bridge",
-      },
+    const systemPrompt = await buildSystemPrompt();
+    const input: ConversationWorkflowInput = {
+      conversationId: workflowId,
+      systemPrompt,
+      initialUserMessage: initialMessage,
+      maxTurnsBeforeContinueAsNew: CONTINUE_AS_NEW_TURN_LIMIT,
     };
 
     return client.workflow.start(WORKFLOW_TYPE, {
@@ -136,15 +87,14 @@ async function sendUserInput(
   handle: WorkflowHandle,
   message: string,
 ): Promise<{ turn_id: string }> {
-  const result = await handle.executeUpdate("user_input", {
+  const result = await handle.executeUpdate(UPDATE_USER_INPUT, {
     args: [{ content: message }],
-    waitForStage: WorkflowUpdateStage.COMPLETED,
   });
-  return result as { turn_id: string };
+  return result as UserMessageAccepted;
 }
 
 async function queryConversationItems(handle: WorkflowHandle): Promise<ConversationItem[]> {
-  const items = await handle.query("get_conversation_items");
+  const items = await handle.query(QUERY_CONVERSATION_ITEMS);
   return items as ConversationItem[];
 }
 
@@ -157,7 +107,7 @@ async function waitForAssistantReply(
   while (Date.now() - start < timeoutMs) {
     const items = await queryConversationItems(handle);
     const reply = items.find(
-      (item) => item.seq > sinceSeq && item.type === "assistant_message" && item.content,
+      (item) => item.seq > sinceSeq && item.type === "assistant_message",
     );
     if (reply) {
       return reply;
@@ -213,6 +163,7 @@ async function startBridgeServer(): Promise<void> {
       res.json({
         turnId: accepted.turn_id,
         reply: reply?.content ?? null,
+        routing: reply?.metadata ?? null,
       });
     } catch (error) {
       res.status(500).json({ error: String(error) });
@@ -234,7 +185,7 @@ async function startBridgeServer(): Promise<void> {
   app.listen(BRIDGE_PORT, () => {
     console.log(`bridge listening on http://localhost:${BRIDGE_PORT}`);
     console.log(`temporal=${TEMPORAL_HOST} namespace=${TEMPORAL_NAMESPACE} taskQueue=${TASK_QUEUE}`);
-    console.log(`model=${MODEL_PROVIDER}/${MODEL_NAME}`);
+    console.log(`workflow=${WORKFLOW_TYPE} continueAsNewTurns=${CONTINUE_AS_NEW_TURN_LIMIT}`);
   });
 }
 
