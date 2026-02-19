@@ -4,7 +4,7 @@
 Mycel is a personal AI assistant built to remember context, follow through on commitments, and recover cleanly when systems fail.
 
 ## What's Not Working
-After months of using OpenClaw as a daily AI assistant, these are the friction points that keep coming up:
+After using OpenClaw as a daily AI assistant, these are the friction points that keep coming up:
 
 - **Memory is fragile.** Context gets lost between sessions. I repeat myself constantly.
 - **Promises get dropped.** The agent says "I'll follow up" and never does. I have to track everything manually.
