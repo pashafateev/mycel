@@ -26,7 +26,7 @@ The system runs like an organization. An intern handles background busywork — 
 | **Reliability** | Crashes lose everything | Temporal replays from last checkpoint |
 | **Errors** | "Sorry, permission error." | "Here's what failed, here are 3 ways to fix it. Pick one." |
 | **Promises** | Forgotten immediately | Tracked as durable workflows with timers |
-| **Model cost** | One model for everything | An organization: intern ($0.10/M) for background, executive ($15/M) only when it matters |
+| **Model cost** | One model for everything | An organization: interns do busywork, executives only for hard problems (~$0.70/day vs $4.50) |
 | **Scope** | Built for millions of users | Built for one person's exact workflow |
 
 ## The Stack
