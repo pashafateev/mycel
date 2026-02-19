@@ -1,7 +1,7 @@
-# Personal Assistant — Design Doc v0.3
+# Mycel — Design Doc v0.3
 
 ## Vision
-A lean, Temporal-native personal AI assistant that manages ideas and code via Telegram. Self-healing, follows through on promises, routes work to the right model automatically, and builds a living knowledge graph from every interaction. Small enough to understand, modify, and own entirely.
+A lean, Temporal-native AI assistant that manages ideas and code via Telegram while growing a living knowledge network from every interaction. Mycel works like mycelium: no rigid hierarchy, just durable connections that spread, link, and strengthen over time. Self-healing, promise-keeping, and small enough to fully understand, modify, and own.
 
 ## Core Principles
 
@@ -257,11 +257,12 @@ llm:
 
 temporal:
   address: localhost:7233
-  namespace: personal-assistant
+  namespace: mycel
   task_queue: main
+  workflow_id_template: mycel-{user_id}
 
 memory:
-  workspace: ~/.pa/workspace
+  workspace: ~/.mycel/workspace
   mem0:
     llm_provider: openrouter
     embeddings: openai:text-embedding-3-small
@@ -289,7 +290,7 @@ Agent: "Sorry, I failed due to a permission error."
 User: ??? what do I do
 ```
 
-### Tomorrow (Personal Assistant)
+### Tomorrow (Mycel)
 ```
 Agent: "I'll push this to GitHub"
 *permission error on git push*
@@ -336,7 +337,7 @@ FollowUpWorkflow(promise, context, deadline)
 
 ### Layer 1: Workspace Files (Human Layer)
 ```
-~/.pa/workspace/
+~/.mycel/workspace/
   ├── SOUL.md          # Personality, values, voice
   ├── USER.md          # About the human
   ├── MEMORY.md        # Curated long-term memory
@@ -415,7 +416,7 @@ Weekly ConsolidationWorkflow (Temporal Schedule)
 5. **Cost model**: Organization of roles (intern/junior/senior/executive/specialist)
 6. **Repo**: Monorepo with docs/ in repo
 7. **Runs on**: Mac for now, Dockerize later
-8. **Name**: TBD
+8. **Name**: Mycel
 
 ---
 

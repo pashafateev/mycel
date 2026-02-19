@@ -1,4 +1,4 @@
-# OpenClaw Deep Research Analysis for Personal Assistant
+# OpenClaw Deep Research Analysis for Mycel
 
 ## 1. What OpenClaw Does Well (Learn From)
 
@@ -26,7 +26,7 @@ OpenClaw solves many hard problems, but it also shows where complexity has gotte
 
 ## 3. What We Dont Need (Cut)
 
-For a single-user Telegram-first Personal Assistant, OpenClaw has major bloat we should deliberately remove.
+For a single-user Telegram-first Mycel, OpenClaw has major bloat we should deliberately remove.
 
 Quantified docs footprint (current OpenClaw docs corpus):
 
@@ -63,7 +63,7 @@ Our architecture (Temporal-native, workflow-centric):
 
 Mapping:
 
-- OpenClaw `sessionKey` -> Temporal workflow ID (`pa-{user_id}` in roadmap)
+- OpenClaw `sessionKey` -> Temporal workflow ID (`mycel-{user_id}` in roadmap)
 - OpenClaw queue lanes -> Temporal task queues + signal handling
 - OpenClaw cron/heartbeat -> Temporal schedules + timers
 - OpenClaw subagents -> Temporal child workflows
@@ -147,4 +147,4 @@ Bottom line:
 
 - We should replace OpenClaw’s breadth with Temporal-backed depth.
 - Keep the reliability lessons, discard the general-purpose platform surface area.
-- Build with strict scope discipline so “Personal Assistant” stays personal, durable, and understandable.
+- Build with strict scope discipline so “Mycel” stays personal, durable, and understandable.

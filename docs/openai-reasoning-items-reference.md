@@ -3,7 +3,7 @@
 ## The Bug
 GPT-5.2 returns `reasoning` items (id: `rs_...`) that must be paired with their following `message` or `function_call` item. If replayed orphaned (without the companion), OpenAI returns 400.
 
-## Rules for Personal Assistant LLM Adapter
+## Rules for Mycel LLM Adapter
 1. **Never replay a trailing reasoning item** — if reasoning is last, drop it
 2. **Preserve order**: reasoning → message/function_call (never reversed)
 3. **If using manual state**: replay reasoning+companion pairs together, in order
@@ -27,4 +27,4 @@ function assertNoOrphanReasoning(items: any[]) {
 ```
 
 ## Source
-Pasha's deep research doc (2026-02-18). Filed as reference for personal-assistant LLM adapter design.
+Pasha's deep research doc (2026-02-18). Filed as reference for mycel LLM adapter design.

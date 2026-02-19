@@ -1,4 +1,4 @@
-# Personal Assistant — Roadmap
+# Mycel — Roadmap
 
 Based on design doc: [docs/DESIGN.md](DESIGN.md)
 
@@ -26,7 +26,7 @@ Goal: Telegram message in → Temporal workflow → OpenRouter LLM → reply out
 - Signal handler for incoming messages
 - Multi-turn loop: wait for message → process → reply → wait
 - ContinueAsNew after N turns (keep history bounded)
-- Workflow ID: `pa-{user_id}` (one conversation per user)
+- Workflow ID: `mycel-{user_id}` (one conversation per user)
 
 ### 1.4 OpenRouter LLM adapter
 - Single activity: call_llm(messages, model, config) → response

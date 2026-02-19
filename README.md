@@ -1,6 +1,6 @@
-# Personal Assistant
+# Mycel
 
-A lean, Temporal-native personal AI assistant that manages ideas and code via Telegram.
+A lean, Temporal-native AI assistant that grows a living knowledge network from every conversation. Like mycelium — no hierarchy, just connections.
 
 **Self-healing.** Errors come with explanations and fix options, not dead ends.
 **Never forgets.** Every promise becomes a durable workflow with a timer.
@@ -23,4 +23,4 @@ A lean, Temporal-native personal AI assistant that manages ideas and code via Te
 
 ## Status
 
-🚧 In design. Phase 1 (MVP) starting soon. See [issues](https://github.com/pashafateev/personal-assistant/issues).
+🚧 In design. Phase 1 (MVP) starting soon. See [issues](https://github.com/pashafateev/mycel/issues).
