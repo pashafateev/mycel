@@ -1,0 +1,20 @@
+telegram:
+  token: ${TELEGRAM_BOT_TOKEN}
+  allowed_users:
+    - 123456789
+
+temporal:
+  address: localhost:7233
+  namespace: default
+  task_queue: mycel-main
+
+workflow:
+  max_turns_before_continue_as_new: 8
+
+llm:
+  default_role: junior
+  roles:
+    intern: mock/intern-nano
+    junior: mock/junior-fast
+    senior: mock/senior-smart
+    executive: mock/executive-reasoning
