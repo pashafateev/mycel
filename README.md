@@ -1,26 +1,50 @@
-# Mycel
+# 🍄 Mycel
 
-A lean, Temporal-native AI assistant that grows a living knowledge network from every conversation. Like mycelium — no hierarchy, just connections.
+> *Like mycelium — no hierarchy, just connections.*
 
-**Self-healing.** Errors come with explanations and fix options, not dead ends.
-**Never forgets.** Every promise becomes a durable workflow with a timer.
-**Always learning.** A living knowledge graph grows from every conversation.
-**Cost-effective.** An organization of models — interns do busywork, executives only for hard problems.
+A lean, Temporal-native AI assistant that grows a living knowledge network from every conversation.
 
-## Docs
+---
 
-- [Design Doc](docs/DESIGN.md) — Architecture, principles, decisions
-- [Roadmap](docs/ROADMAP.md) — Phases, milestones, GitHub issues
-- [Pitch](docs/PITCH.md) — What this is and why it matters
+🌱 **Always growing.** Every chat feeds a knowledge graph that links, strengthens, and never forgets.
+
+🔁 **Self-healing.** Errors come with explanations and options, not dead ends. Temporal retries the rest.
+
+🤝 **Keeps its word.** Every promise becomes a durable workflow. It literally can't forget.
+
+🧠 **Right brain, right job.** An org of models — interns handle busywork, seniors think, executives only when it matters. ~$0.70/day, not $4.50.
+
+🔬 **Yours to own.** Small codebase. Your code. Change how it thinks, what it remembers, how it works.
+
+---
 
 ## Stack
 
-- **Python 3.12+** — simple, readable, ownable
-- **Temporal** — durable execution, retries, scheduling
-- **Mem0** — intelligent memory layer
-- **OpenRouter** — one API, all LLMs
-- **Telegram** — the interface
+| | |
+|---|---|
+| 🐍 **Python** | Simple, readable, ownable |
+| ⏰ **Temporal** | Durable execution — crashes recover, promises keep |
+| 🧫 **Mem0** | Intelligent memory — auto-extracts, deduplicates, searches |
+| 🔀 **OpenRouter** | One API, every model |
+| 📬 **Telegram** | The interface (for now) |
+
+## Docs
+
+| | |
+|---|---|
+| 📐 [Design](docs/DESIGN.md) | Architecture, principles, the Organization model |
+| 🗺️ [Roadmap](docs/ROADMAP.md) | Phases, milestones, GitHub issues |
+| 🎤 [Pitch](docs/PITCH.md) | What this is and why it matters |
+| 🔬 [OpenClaw Analysis](docs/OPENCLAW-ANALYSIS.md) | What we learned from the framework we're replacing |
 
 ## Status
 
-🚧 In design. Phase 1 (MVP) starting soon. See [issues](https://github.com/pashafateev/mycel/issues).
+```
+🚧 Phase 1 (MVP) — designing
+```
+
+See [issues](https://github.com/pashafateev/mycel/issues) for the full roadmap.
+
+---
+
+<sub>*mycel* — from mycelium, the underground network that connects forests. also: *my cell* — your personal thinking space. 🍄</sub>
