@@ -3,11 +3,16 @@
 ## The One-Liner
 Mycel is a personal AI assistant built to remember context, follow through on commitments, and recover cleanly when systems fail.
 
-## The Problem
-Most AI assistants lose context between sessions, don't follow through on commitments, and surface unhelpful errors when things break. They run every task through the same model regardless of complexity. They're designed for broad adoption, so they carry features and abstractions you'll never use.
+## What's Not Working
+After months of using OpenClaw as a daily AI assistant, these are the friction points that keep coming up:
 
-## The Solution
-A Telegram-based AI assistant built on three ideas:
+- **Memory is fragile.** Context gets lost between sessions. I repeat myself constantly.
+- **Promises get dropped.** The agent says "I'll follow up" and never does. I have to track everything manually.
+- **Errors are dead ends.** "Permission error" — and then nothing. No explanation, no suggested fix, no options.
+- **One model for everything.** The same expensive model answers "what time is it" and "design my system." No sense of proportionality.
+- **Too much I don't use.** OpenClaw supports 20+ channels, browser automation, canvas, skills marketplace. I use Telegram and shell commands.
+
+## What Mycel Does Instead
 
 **1. Durable execution and follow-through.**
 Every conversation runs as a [Temporal](https://temporal.io) workflow — the same infrastructure Uber, Netflix, and DoorDash use for mission-critical processes. If the system crashes mid-sentence, it picks up exactly where it left off. If an API call fails, it retries automatically. If the assistant promises to remind you in an hour, a durable timer ensures it actually happens. Temporal doesn't forget. Neither does your assistant.
@@ -36,12 +41,7 @@ The system runs like an organization. An intern handles background busywork — 
 - **OpenRouter** — one API for every LLM (GPT, Claude, Gemini, Grok)
 - **Telegram** — the interface (for now)
 
-## Who It's For
-Right now? One person — a developer who wants an AI assistant that actually works like a reliable colleague, not a fancy autocomplete that forgets everything and panics when things go wrong.
+## Where This Goes
+An assistant that's been with me for a year. Knows my projects, my patterns, my decisions. When I ask "what should I work on today?" it doesn't give generic advice — it knows what's active, what's stalled, and that I tend to overcommit. It pushes back. It reminds me of things I decided months ago that matter now.
 
-But the architecture is general. Anyone who wants a personal AI that truly knows them, keeps its promises, and doesn't break could use this. "Mycel" also reads as "my cell": your own unit of thinking space, private but connected. Generic tools optimize for the average user. This optimizes for *you*.
-
-## The Vision
-Imagine an assistant that's been with you for a year. It knows your coding style, your project history, your decision-making patterns, and your schedule preferences. It's read every conversation, extracted lessons, and linked ideas over time. When you ask "what should I work on today?" it doesn't give generic productivity advice — it uses your active projects, energy patterns, deadlines, and tendency to overcommit. It pushes back when you're taking on too much. It reminds you of decisions from months ago that matter now.
-
-The goal is practical: a second brain with durable memory and useful judgment.
+A second brain with durable memory and useful judgment. That's the goal.
