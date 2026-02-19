@@ -4,7 +4,7 @@
 Mycel is a personal AI assistant built to remember context, follow through on commitments, and recover cleanly when systems fail.
 
 ## The Problem
-Today's AI assistants are stateless, fragile, and generic. They forget what you told them yesterday. They promise to follow up and never do. They crash and lose your conversation. They throw cryptic errors and leave you stranded. They use the most expensive model for "what's the weather?" and the cheapest for "design my system architecture." And they're built for everyone, which means they're optimized for no one.
+Most AI assistants lose context between sessions, don't follow through on commitments, and surface unhelpful errors when things break. They run every task through the same model regardless of complexity. They're designed for broad adoption, so they carry features and abstractions you'll never use.
 
 ## The Solution
 A Telegram-based AI assistant built on three ideas:
