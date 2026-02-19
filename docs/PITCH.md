@@ -41,6 +41,18 @@ The system runs like an organization. An intern handles background busywork — 
 - **OpenRouter** — one API for every LLM (GPT, Claude, Gemini, Grok)
 - **Telegram** — the interface (for now)
 
+## How It Actually Works — Real Examples
+
+### Being Honest About Mistakes
+
+![Transparency example](images/example-transparency.jpg)
+
+When something goes wrong, you don't get corporate boilerplate. You get an honest assessment of what failed and an immediate fix. No hiding, no deflecting, no "I apologize for any inconvenience." Just "that's on me, here's what actually happened, fixing it now."
+
+This is what reliable assistance looks like — not perfection, but transparency and follow-through.
+
+---
+
 ## Where This Goes
 An assistant that's been with me for a year. Knows my projects, my patterns, my decisions. When I ask "what should I work on today?" it doesn't give generic advice — it knows what's active, what's stalled, and that I tend to overcommit. It pushes back. It reminds me of things I decided months ago that matter now.
 
