@@ -43,9 +43,7 @@ The system runs like an organization. An intern handles background busywork — 
 
 ## How It Actually Works — Real Examples
 
-### Being Honest About Mistakes
-
-![Transparency example](images/example-transparency.jpg)
+See [examples/](examples/) for a living collection of actual interactions showing what reliable AI assistance looks like — honest mistake handling, transparent error recovery, and real problem-solving vs corporate speak.
 
 When something goes wrong, you don't get corporate boilerplate. You get an honest assessment of what failed and an immediate fix. No hiding, no deflecting, no "I apologize for any inconvenience." Just "that's on me, here's what actually happened, fixing it now."
 
