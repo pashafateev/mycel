@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import os
 from pathlib import Path
-from typing import Any
+from typing import Any, Union
 
 import yaml
 
@@ -40,7 +40,7 @@ class MycelSettings:
     llm: LLMSettings
 
 
-def load_settings(path: str | Path) -> MycelSettings:
+def load_settings(path: Union[str, Path]) -> MycelSettings:
     raw = yaml.safe_load(Path(path).read_text())
     expanded = _expand_env(raw)
     return MycelSettings(

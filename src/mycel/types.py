@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Optional
 
 
 @dataclass
@@ -35,7 +35,7 @@ class LLMRequest:
     model_name: str
     history: list[dict[str, Any]]
     user_message: str
-    tool_result: str | None = None
+    tool_result: Optional[str] = None
 
 
 @dataclass

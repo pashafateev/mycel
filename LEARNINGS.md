@@ -69,3 +69,57 @@
   - `temporalio`: missing in this environment
   - `yaml` (`PyYAML`): missing in this environment
 - Code is written to be runnable once dependencies are installed in a normal environment.
+
+## Round 2 Findings (Real Dependencies + Tests)
+
+### Dependency Install Experience
+- Successfully installed: `temporalio`, `python-telegram-bot`, `httpx`, `pyyaml`, `pytest`, `pytest-asyncio`.
+- Installed versions in this environment:
+  - `temporalio==1.18.2`
+  - `python-telegram-bot==22.5` (already present)
+  - `httpx==0.28.1` (already present)
+  - `PyYAML==6.0.3`
+  - `pytest==8.4.2`
+  - `pytest-asyncio==1.2.0`
+- No package version conflicts occurred.
+- Packaging caveat: this host has old `pip`/tooling (Python 3.9 + `pip 21.2.4`), and local `pip install .` produced an `UNKNOWN-0.0.0` wheel instead of clean project metadata.
+
+### Import Verification Results
+- `python3 -c "import temporalio; import telegram; import httpx; import yaml; print('all imports OK')"` passed.
+- `python -c ...` could not be used because `python` is not on PATH in this environment (`python3` is available).
+
+### Code Fixes Needed (Round 1 Blind Spots)
+- Temporal SDK introspects workflow/query type hints at import time. On Python 3.9, `str | None` caused collection/import failure.
+- Fixed by replacing PEP 604 unions with `typing.Optional`/`typing.Union` in:
+  - `src/mycel/workflows/conversation.py`
+  - `src/mycel/types.py`
+  - `src/mycel/config.py`
+- Added `pytest-asyncio` to dev dependencies in `pyproject.toml`.
+
+### Integration Test Results
+- Added `tests/test_workflow.py` with `temporalio.testing.WorkflowEnvironment` + real worker registration for mock activities.
+- Added `tests/conftest.py` to ensure `src/` is importable in this repo layout.
+- Test coverage added:
+  - Send a message and receive a workflow reply (`query` polling).
+  - Continue-As-New after configured N turns.
+  - Memory update activity scheduling after a turn.
+- Result: `python3 -m pytest -v` => `3 passed`.
+
+### Worker/Bot Startup Attempt
+- Worker startup attempt (`PYTHONPATH=src python3 -m mycel.worker --config config/example.yaml`) did not complete within a 12s guard; connection to Temporal at `localhost:7233` is not available here.
+- Bot startup attempt (`PYTHONPATH=src python3 -m mycel.bot --config config/example.yaml`) failed fast with `telegram.error.InvalidToken` because `TELEGRAM_BOT_TOKEN` is unset/invalid in `config/example.yaml`.
+
+### temporalio.testing Ergonomics
+- Overall good:
+  - `WorkflowEnvironment.start_time_skipping()` is practical and fast.
+  - Running a real worker in tests gives meaningful confidence with low ceremony.
+- Nuance:
+  - Continue-As-New assertions are run-aware. Default workflow handles can reflect the current run; to assert Continue-As-New event presence, history must be fetched for the original run ID.
+
+### Revised Honest Assessment
+- Pure Python + Temporal remains a strong fit for this architecture.
+- With real SDK installed, the main issues are not architectural; they are operational/runtime details:
+  - Python version/toolchain consistency,
+  - packaging/install ergonomics,
+  - run-aware testing patterns for Continue-As-New,
+  - environment config hygiene for external systems (Temporal endpoint, Telegram token).

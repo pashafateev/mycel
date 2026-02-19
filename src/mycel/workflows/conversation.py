@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import timedelta
+from typing import Optional
 
 from temporalio import workflow
 from temporalio.common import RetryPolicy
@@ -60,7 +61,7 @@ class ConversationWorkflow:
         self._pending_messages.append(envelope)
 
     @workflow.query
-    def get_response(self, request_id: str) -> str | None:
+    def get_response(self, request_id: str) -> Optional[str]:
         return self._responses.get(request_id)
 
     async def _process_turn(self, envelope: MessageEnvelope) -> None:
