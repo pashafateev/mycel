@@ -117,7 +117,7 @@ async function waitForAssistantReply(
   return null;
 }
 
-async function startBridgeServer(): Promise<void> {
+export async function startBridgeServer(): Promise<void> {
   const client = await createTemporalClient();
   const app = express();
   app.use(express.json());
@@ -189,7 +189,19 @@ async function startBridgeServer(): Promise<void> {
   });
 }
 
-startBridgeServer().catch((error) => {
-  console.error("bridge failed to start", error);
-  process.exit(1);
-});
+if (require.main === module) {
+  startBridgeServer().catch((error) => {
+    console.error("bridge failed to start", error);
+    process.exit(1);
+  });
+}
+
+export {
+  buildSystemPrompt,
+  createTemporalClient,
+  ensureWorkflow,
+  queryConversationItems,
+  sendUserInput,
+  waitForAssistantReply,
+  workflowIdForSession,
+};

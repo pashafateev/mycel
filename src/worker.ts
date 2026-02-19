@@ -8,7 +8,7 @@ const TEMPORAL_HOST = process.env.TEMPORAL_HOST ?? "localhost:7233";
 const TEMPORAL_NAMESPACE = process.env.TEMPORAL_NAMESPACE ?? "default";
 const TASK_QUEUE = process.env.TEMPORAL_TASK_QUEUE ?? "mycel-bridge";
 
-async function runWorker(): Promise<void> {
+export async function runWorker(): Promise<void> {
   const connection = await NativeConnection.connect({
     address: TEMPORAL_HOST,
   });
@@ -28,8 +28,9 @@ async function runWorker(): Promise<void> {
   await worker.run();
 }
 
-runWorker().catch((error) => {
-  console.error("worker failed", error);
-  process.exit(1);
-});
-
+if (require.main === module) {
+  runWorker().catch((error) => {
+    console.error("worker failed", error);
+    process.exit(1);
+  });
+}
