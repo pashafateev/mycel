@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mycel-tb01"
+version = "0.1.0"
+description = "Tracer Bullet 1: Telegram + Temporal single-process spike"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+  "temporalio>=1.7.0",
+  "python-telegram-bot>=21.0",
+  "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "pytest-asyncio>=0.23",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
