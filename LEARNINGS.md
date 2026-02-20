@@ -36,3 +36,29 @@
 ## No API Key Behavior
 - If `OPENROUTER_API_KEY` is unset, `scripts/test_tb03_resilience.py` skips real calls and runs only mocked integration tests:
   - `python -m pytest -q tests/test_tb03_integration.py`
+
+# TB4 Learnings — Streaming + Transcript Hygiene
+
+## Streaming Through Temporal Activities
+- Implemented `stream_llm` in `src/tb04/activities.py` using OpenRouter `stream=true` and `httpx.AsyncClient.stream`.
+- Activity uses an internal async generator to parse SSE `data:` lines, incrementally buffers deltas, and returns one complete result payload (`response_text`, `model_used`, `token_count`, `latency_ms`, `was_streamed=true`).
+- This follows Temporal constraints: activities cannot stream partial chunks back to workflow callers, so buffering-then-return is required.
+
+## Transcript Hygiene Findings
+- Added `assert_no_orphan_reasoning(items)` in `src/tb04/transcript.py`.
+- Validator removes trailing orphan `reasoning` items and logs a warning when dropping them.
+- Validator also guards malformed transitions where `reasoning` is followed by an invalid item type.
+- `LLMStreamTestWorkflow` runs `validate_transcript` before every LLM call so replay payloads remain GPT-5.2 safe.
+
+## Interrupted Stream Recovery
+- Mid-stream timeout/network failures are normalized into `stream_interrupted_error` and treated as retryable Temporal activity errors.
+- Workflow persists either a successful final response or a clean recoverable error per request.
+- Added coverage for interrupted streams in both script-level and pytest-level TB4 tests.
+
+## Recommendation
+- Ship streaming from day 1 behind a feature flag.
+- Rationale: streaming path has distinct failure modes (chunk parse, SSE disconnect, partial token accounting) and transcript hygiene requirements that should be exercised continuously, while feature-flagging limits blast radius during rollout.
+
+## No API Key Behavior (TB4)
+- If `OPENROUTER_API_KEY` is not set, `scripts/test_tb04_streaming.py` runs with mocked `httpx` streaming responses.
+- `tests/test_tb04_streaming.py` also uses mocked `httpx` streaming so CI can validate behavior without live provider credentials.
