@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import asyncio
-from dataclasses import dataclass
-from typing import Optional
+from dataclasses import dataclass, field
+from typing import Any, Optional
 from uuid import uuid4
 
 from telegram import Update
@@ -13,8 +13,22 @@ from tb01.workflows import PingWorkflow
 
 
 @dataclass
+class UpdateTracker:
+    seen_update_ids: set[int] = field(default_factory=set)
+    lock: asyncio.Lock = field(default_factory=asyncio.Lock)
+
+    async def register(self, update_id: int) -> bool:
+        async with self.lock:
+            if update_id in self.seen_update_ids:
+                return False
+            self.seen_update_ids.add(update_id)
+            return True
+
+
+@dataclass
 class BotDeps:
     workflow_handle: WorkflowHandle
+    tracker: UpdateTracker = field(default_factory=UpdateTracker)
 
 
 async def _start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -40,20 +54,71 @@ async def _text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 async def _send_ping(update: Update, context: ContextTypes.DEFAULT_TYPE, message: str) -> None:
+    if not update.message:
+        return
+
     deps: BotDeps = context.application.bot_data["deps"]
-    request_id = str(uuid4())
+    envelope = await build_signal_envelope(
+        deps=deps,
+        update_id=update.update_id,
+        chat_id=update.message.chat_id,
+        sequence=update.message.message_id,
+        message=message,
+    )
+    if envelope is None:
+        return
 
     await deps.workflow_handle.signal(
         PingWorkflow.enqueue_ping,
-        {"request_id": request_id, "message": message},
+        envelope,
     )
 
-    response = await _wait_for_response(deps.workflow_handle, request_id)
+    response = await _wait_for_response(deps.workflow_handle, envelope["request_id"])
     if response is None:
         await update.message.reply_text("Timed out waiting for workflow response.")
         return
 
     await update.message.reply_text(response)
+
+
+async def build_signal_envelope(
+    deps: BotDeps,
+    update_id: int,
+    chat_id: int,
+    sequence: int,
+    message: str,
+) -> Optional[dict[str, Any]]:
+    is_new = await deps.tracker.register(update_id)
+    if not is_new:
+        return None
+    return {
+        "request_id": f"tg-{chat_id}-{update_id}-{uuid4().hex[:8]}",
+        "update_id": update_id,
+        "chat_id": chat_id,
+        "sequence": sequence,
+        "message": message,
+    }
+
+
+async def replay_update_payload(
+    payload: dict[str, Any],
+    deps: BotDeps,
+) -> Optional[dict[str, Any]]:
+    message = payload.get("message") or {}
+    chat = message.get("chat") or {}
+    if "update_id" not in payload or "id" not in chat:
+        return None
+
+    text = message.get("text") or "hello"
+    if "message_id" not in message:
+        return None
+    return await build_signal_envelope(
+        deps=deps,
+        update_id=int(payload["update_id"]),
+        chat_id=int(chat["id"]),
+        sequence=int(message["message_id"]),
+        message=str(text),
+    )
 
 
 async def _wait_for_response(

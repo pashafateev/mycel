@@ -48,3 +48,37 @@
 - Handle multi-user/session routing explicitly (per-chat workflow IDs or session workflows).
 - Add secrets/config validation, health endpoints, and supervised process management.
 - Add integration tests against a real Temporal dev server + Telegram sandbox account.
+
+---
+
+# TB2 Learnings: Idempotency + Ordering Contract
+
+## Outcome
+- Bot-side update idempotency works with an in-memory `seen_update_ids` set keyed by Telegram `update_id`.
+- Duplicate updates are dropped before signaling Temporal (no duplicate workflow work created).
+- Signal envelope now includes:
+  - `update_id` (dedupe key)
+  - `chat_id`
+  - `sequence` (Telegram `message_id`, monotonic per chat)
+  - `request_id`
+  - `message`
+- Workflow now tracks per-chat expected sequence and logs out-of-order arrivals without blocking processing.
+
+## Verification Results
+- Standalone replay (`scripts/test_tb02_idempotency.py`):
+  - Generated 30 unique updates, injected 5 duplicates, and reordered 3 messages.
+  - Result: `35` replayed updates produced exactly `30` workflow signals.
+  - Ordering regressions were detected in replay stream while preserving one signal per unique update.
+- Temporal integration test (`tests/test_tb02_idempotency.py`):
+  - Sent 10 unique updates + 3 duplicates through replay handler + real Temporal workflow.
+  - Result: workflow processed exactly 10 signals and produced exactly 10 unique responses.
+  - Out-of-order deliveries were observed and counted by workflow stats.
+
+## Production Delta
+- Replace in-memory dedupe with durable storage keyed by `(bot_id, update_id)` and bounded retention.
+- Sequence source should be explicit for all update types (edits, callbacks, media groups), not only text message events.
+- Add alerting/metrics for:
+  - duplicate drop rate
+  - out-of-order rate by chat/workflow
+  - backlog/latency from signal enqueue to response query hit
+- For horizontal scaling, move dedupe + sequence coordination to shared state (e.g., Redis/Postgres) or route each chat to a single partition owner.
