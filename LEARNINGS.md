@@ -1,0 +1,38 @@
+# TB3 Learnings — OpenRouter Activity Resilience
+
+## Scope
+- Implemented `call_llm` as a Temporal activity backed by async `httpx` calls to OpenRouter.
+- Added `LLMTestWorkflow` with signal-driven prompt intake, activity retries, and per-request queryable result state.
+- Added real-call resilience harness (`scripts/test_tb03_resilience.py`) and mocked integration tests (`tests/test_tb03_integration.py`).
+
+## OpenRouter Reliability Observations
+- Expected transient failure classes are now explicitly mapped: `rate_limit_error` (429), `server_error` (5xx), `timeout_error`, and `network_error`.
+- Auth and request-shape failures are treated as non-retryable (`auth_error`, `invalid_request_error`, `validation_error`) to avoid wasted retries.
+- Real reliability metrics depend on running the resilience script against a live API key and active Temporal server.
+
+## Retry Behavior Through Temporal
+- Retry policy is configurable at workflow start (`initial_interval_seconds`, `maximum_interval_seconds`, `backoff_coefficient`, `maximum_attempts`).
+- Workflow stores retry count per request using the final activity attempt metadata.
+- Mocked tests validate retry recovery paths for 429 and 500, plus exhausted retries for timeout.
+
+## Latency Profile
+- Activity returns per-attempt `latency_ms` measured around the OpenRouter HTTP call.
+- Workflow stores an end-to-end latency value for failed requests.
+- Resilience script prints summary latency stats (`p50`, `p95`, `max`) from successful calls.
+
+## Error Handling Gaps
+- No provider fallback chain yet (single provider path only).
+- No circuit breaker / adaptive throttling for sustained 429 windows.
+- No streaming path in TB3 (deferred to TB4).
+- Retry count is derived from attempt metadata, not a separate durable metrics sink.
+
+## Production Changes Needed
+- Add structured telemetry export (OTel/log sink) for retries, status codes, and token/latency metrics.
+- Add provider/model fallback policy (including emergency direct-provider adapters).
+- Add per-model timeout budgets and adaptive retry tuning from observed failure rates.
+- Add secret management + runtime config loading instead of direct env reads in activity.
+- Add load/concurrency testing across multiple workflows/task queues.
+
+## No API Key Behavior
+- If `OPENROUTER_API_KEY` is unset, `scripts/test_tb03_resilience.py` skips real calls and runs only mocked integration tests:
+  - `python -m pytest -q tests/test_tb03_integration.py`
