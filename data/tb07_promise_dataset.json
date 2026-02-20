@@ -1,0 +1,38 @@
+{
+  "name": "tb07_promise_dataset",
+  "description": "30 utterances for commitment detection eval (TB7)",
+  "items": [
+    {"id": 1, "category": "explicit_commitment", "utterance": "Ill check on that PR tomorrow morning", "expected_is_commitment": true},
+    {"id": 2, "category": "explicit_commitment", "utterance": "Let me follow up with you after the meeting", "expected_is_commitment": true},
+    {"id": 3, "category": "explicit_commitment", "utterance": "Ill remind you at 3pm", "expected_is_commitment": true},
+    {"id": 4, "category": "explicit_commitment", "utterance": "I will review the design doc this weekend", "expected_is_commitment": true},
+    {"id": 5, "category": "explicit_commitment", "utterance": "I will send you the summary by end of day", "expected_is_commitment": true},
+    {"id": 6, "category": "explicit_commitment", "utterance": "I'll circle back on this tomorrow", "expected_is_commitment": true},
+    {"id": 7, "category": "explicit_commitment", "utterance": "I am going to update the ticket after lunch", "expected_is_commitment": true},
+    {"id": 8, "category": "explicit_commitment", "utterance": "Let me check the logs and get back to you", "expected_is_commitment": true},
+    {"id": 9, "category": "explicit_commitment", "utterance": "I'll handle this first thing Monday", "expected_is_commitment": true},
+    {"id": 10, "category": "explicit_commitment", "utterance": "I can confirm the deployment status tonight", "expected_is_commitment": true},
+
+    {"id": 11, "category": "soft_ambiguous", "utterance": "We should probably revisit this", "expected_is_commitment": false},
+    {"id": 12, "category": "soft_ambiguous", "utterance": "That might be worth looking into", "expected_is_commitment": false},
+    {"id": 13, "category": "soft_ambiguous", "utterance": "Id like to think about that more", "expected_is_commitment": false},
+    {"id": 14, "category": "soft_ambiguous", "utterance": "Maybe we can check this later", "expected_is_commitment": false},
+    {"id": 15, "category": "soft_ambiguous", "utterance": "I should probably review that soon", "expected_is_commitment": false},
+    {"id": 16, "category": "soft_ambiguous", "utterance": "Could be useful to follow up sometime", "expected_is_commitment": false},
+    {"id": 17, "category": "soft_ambiguous", "utterance": "I think we need another pass", "expected_is_commitment": false},
+    {"id": 18, "category": "soft_ambiguous", "utterance": "It may make sense to remind people", "expected_is_commitment": false},
+    {"id": 19, "category": "soft_ambiguous", "utterance": "I'd consider checking that tomorrow", "expected_is_commitment": false},
+    {"id": 20, "category": "soft_ambiguous", "utterance": "We could look at this after the release", "expected_is_commitment": false},
+
+    {"id": 21, "category": "non_commitment", "utterance": "The weather is nice today", "expected_is_commitment": false},
+    {"id": 22, "category": "non_commitment", "utterance": "Python is a great language for this", "expected_is_commitment": false},
+    {"id": 23, "category": "non_commitment", "utterance": "Here is the code you asked for", "expected_is_commitment": false},
+    {"id": 24, "category": "non_commitment", "utterance": "I dont think thats the right approach", "expected_is_commitment": false},
+    {"id": 25, "category": "non_commitment", "utterance": "The tests are failing on CI right now", "expected_is_commitment": false},
+    {"id": 26, "category": "non_commitment", "utterance": "This endpoint returns a 404", "expected_is_commitment": false},
+    {"id": 27, "category": "non_commitment", "utterance": "Thanks for sharing the notes", "expected_is_commitment": false},
+    {"id": 28, "category": "non_commitment", "utterance": "I disagree with that tradeoff", "expected_is_commitment": false},
+    {"id": 29, "category": "non_commitment", "utterance": "The migration finished successfully", "expected_is_commitment": false},
+    {"id": 30, "category": "non_commitment", "utterance": "Let's use the simpler query for now", "expected_is_commitment": false}
+  ]
+}
