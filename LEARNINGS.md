@@ -82,3 +82,44 @@
   - out-of-order rate by chat/workflow
   - backlog/latency from signal enqueue to response query hit
 - For horizontal scaling, move dedupe + sequence coordination to shared state (e.g., Redis/Postgres) or route each chat to a single partition owner.
+
+---
+
+# TB9 Learnings: Durable Follow-Ups Across Temporal Restart
+
+## Outcome
+- `workflow.sleep()` timers survived Temporal dev server restart when started with SQLite persistence:
+  - `temporal server start-dev --db-filename /tmp/tb09_temporal.db --port 7233`
+- Real restart sequence passed for 3 reminders (30s, 60s, 90s): all delivered exactly once and none lost.
+- Delivery deltas observed were well within the 10s budget (~0.04s each in this run).
+
+## Proof Summary (Real Restart Test)
+- Script: `scripts/test_tb09_durable.py`
+- Flow:
+  1. Start Temporal dev server with persistent SQLite DB.
+  2. Start TB9 worker.
+  3. Schedule 3 reminders.
+  4. Wait 15s.
+  5. Stop server and worker.
+  6. Restart server on same DB, restart worker.
+  7. Verify exactly 3 unique deliveries persisted in SQLite.
+  8. Validate `abs(delivered_at - expected_at) <= 10s`.
+
+## Integration Test Coverage
+- `tests/test_tb09_followup.py` uses `WorkflowEnvironment.start_time_skipping()`.
+- Verified:
+  - 60s follow-up is delivered exactly once.
+  - Two reminders are both delivered once with no duplicates.
+
+## Questions Answered
+- Does `workflow.sleep` survive restart?
+  - Yes, if Temporal state is persisted (SQLite DB file in dev mode here).
+- How long does recovery take after restart?
+  - In this spike, recovery was effectively immediate after process restart; timer firing remained near expected times.
+- Any edge cases with timer resolution?
+  - Small drift exists (milliseconds to low seconds possible depending on restart duration and worker reconnect), but stayed far inside 10s in this run.
+- Would this work through machine sleep/wake?
+  - Yes in principle: timers are server-side durable state. On wake, overdue timers fire once workers reconnect.
+- Recommendation: local Temporal daily driver vs VPS?
+  - Local with SQLite is good enough for development and personal daily-driver experiments.
+  - For always-on reliability (machine restarts/sleep/network issues), move Temporal to a VPS or managed deployment sooner.
