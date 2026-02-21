@@ -48,3 +48,33 @@
 - Handle multi-user/session routing explicitly (per-chat workflow IDs or session workflows).
 - Add secrets/config validation, health endpoints, and supervised process management.
 - Add integration tests against a real Temporal dev server + Telegram sandbox account.
+
+# TB10 Learnings: Two-Bot Parallel Transition (Mycel + OpenClaw)
+
+## Outcome
+- Simulation demonstrates command-level coexistence with 0 double-handled commands out of 20.
+- Namespace split (`/m_*` vs `/oc_*`) is sufficient for deterministic command routing when both bots can see the same updates.
+- Shared commands (`/start`, `/help`) need explicit arbitration to avoid duplicate replies.
+
+## Is Namespace Separation Sufficient?
+- Sufficient for bot-owned commands (`/m_*`, `/oc_*`).
+- Not sufficient alone for shared commands and unprefixed commands.
+- Additional controls needed:
+  - Shared first-responder claim for `/start` and `/help`.
+  - Policy decision that plain text belongs to Mycel during migration.
+
+## Edge Cases Found
+- OpenClaw receiving `/m_ping` must stay silent; verified.
+- Group chat delivery to both bots still safe with strict namespace ownership.
+- Ambiguous plain text can collide only if both bots process text; fixed by making OpenClaw command-only and Mycel the default text owner.
+
+## Recommended Transition Timeline/Strategy
+1. Week 1-2: enforce `/m_*` and `/oc_*` ownership and telemetry for collisions.
+2. Week 3-4: move active OpenClaw journeys to `/m_*`; keep `/oc_*` as compatibility aliases with migration prompts.
+3. Week 5-6: make unprefixed text Mycel-default everywhere; keep `/oc_*` for fallback only.
+4. Week 7+: remove `/oc_*` once usage and error rate are stable near zero for a full observation window.
+
+## Telegram API Limitations for Two-Bot Setups
+- Telegram does not provide cross-bot coordination primitives; arbitration must be implemented in application state.
+- In groups, both bots can receive overlapping updates depending on privacy mode/configuration, so app-level filtering is mandatory.
+- Commands can include `@botusername` suffix; router logic should normalize command tokens to avoid false collisions.
