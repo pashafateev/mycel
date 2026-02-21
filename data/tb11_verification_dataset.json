@@ -1,0 +1,142 @@
+[
+  {
+    "id": "fact_1",
+    "category": "simple_facts",
+    "difficulty": "easy",
+    "prompt": "What is the capital of France?",
+    "expected_answer": "Paris is the capital of France."
+  },
+  {
+    "id": "fact_2",
+    "category": "simple_facts",
+    "difficulty": "easy",
+    "prompt": "Convert 72°F to Celsius",
+    "expected_answer": "72°F is about 22.2°C."
+  },
+  {
+    "id": "fact_3",
+    "category": "simple_facts",
+    "difficulty": "easy",
+    "prompt": "What year did Python 3 release?",
+    "expected_answer": "Python 3.0 was released in 2008."
+  },
+  {
+    "id": "fact_4",
+    "category": "simple_facts",
+    "difficulty": "easy",
+    "prompt": "How many bytes in a kilobyte?",
+    "expected_answer": "In SI units, 1 kilobyte is 1,000 bytes; in common computing usage, it can also mean 1,024 bytes (technically a kibibyte)."
+  },
+  {
+    "id": "fact_5",
+    "category": "simple_facts",
+    "difficulty": "easy",
+    "prompt": "What does HTTP stand for?",
+    "expected_answer": "HTTP stands for Hypertext Transfer Protocol."
+  },
+  {
+    "id": "sum_1",
+    "category": "summarization",
+    "difficulty": "medium",
+    "prompt": "Summarize this in one line: The city council met for three hours to discuss transportation. They approved two new bike lanes downtown and delayed a vote on parking fees until next month. Several residents also asked for safer pedestrian crossings near schools.",
+    "expected_answer": "The council advanced bike and pedestrian safety plans but postponed the parking-fee decision."
+  },
+  {
+    "id": "sum_2",
+    "category": "summarization",
+    "difficulty": "medium",
+    "prompt": "Summarize this in one line: The project was NOT approved despite meeting the budget target and technical requirements. Reviewers cited unresolved legal risks and asked for another compliance pass before reconsideration.",
+    "expected_answer": "The project was not approved because legal compliance risks remain unresolved."
+  },
+  {
+    "id": "sum_3",
+    "category": "summarization",
+    "difficulty": "medium",
+    "prompt": "Summarize this in one line: Q2 revenue grew 12% year over year, but gross margin fell by 3 points due to higher logistics costs. The company launched a premium plan, reduced churn in enterprise accounts, and guided flat operating profit for Q3.",
+    "expected_answer": "Revenue and enterprise retention improved, but margin pressure led to cautious near-term profit guidance."
+  },
+  {
+    "id": "sum_4",
+    "category": "summarization",
+    "difficulty": "medium",
+    "prompt": "Summarize this in one line: The school piloted a later start time for six weeks. Attendance improved slightly, and first-period tardiness dropped by 18%. However, after-school program logistics became harder for working families.",
+    "expected_answer": "A later start improved attendance and punctuality but created after-school logistics issues for families."
+  },
+  {
+    "id": "sum_5",
+    "category": "summarization",
+    "difficulty": "medium",
+    "prompt": "Summarize this in one line: Researchers tested two battery chemistries under extreme heat. Chemistry A retained 91% capacity after 500 cycles, while Chemistry B retained 84% but charged faster. The team recommends A for grid storage and B for rapid-charge consumer devices.",
+    "expected_answer": "One chemistry offers better long-term durability while the other trades durability for faster charging, suiting different use cases."
+  },
+  {
+    "id": "reason_1",
+    "category": "reasoning",
+    "difficulty": "easy",
+    "prompt": "If all meetings are on Tuesday, and today is Monday, when is the next meeting?",
+    "expected_answer": "The next meeting is tomorrow, Tuesday."
+  },
+  {
+    "id": "reason_2",
+    "category": "reasoning",
+    "difficulty": "medium",
+    "prompt": "A train travels 120 miles in 2 hours, then 90 miles in 1.5 hours. What is the average speed for the whole trip?",
+    "expected_answer": "Total distance is 210 miles over 3.5 hours, so the average speed is 60 mph."
+  },
+  {
+    "id": "reason_3",
+    "category": "reasoning",
+    "difficulty": "hard",
+    "prompt": "Should I use polling or webhooks for a personal bot with 1 user? Briefly justify.",
+    "expected_answer": "For a 1-user personal bot, polling is usually simpler and sufficient unless you specifically need low-latency push events or must avoid periodic API calls."
+  },
+  {
+    "id": "reason_4",
+    "category": "reasoning",
+    "difficulty": "hard",
+    "prompt": "You buy 3 notebooks at $4 each and 2 pens at $1.50 each. You use a $2 coupon, then pay 8% sales tax on the discounted subtotal. What is the final total?",
+    "expected_answer": "Subtotal is $15.00, minus $2 coupon = $13.00; tax is $1.04, so final total is $14.04."
+  },
+  {
+    "id": "reason_5",
+    "category": "reasoning",
+    "difficulty": "medium",
+    "prompt": "You need to choose between Tool A (faster setup, weaker reliability) and Tool B (slower setup, stronger reliability) for a one-time internal demo tomorrow. Which is better and why?",
+    "expected_answer": "Tool A is usually better for a one-time demo tomorrow because speed and time-to-value outweigh long-term reliability tradeoffs."
+  },
+  {
+    "id": "code_1",
+    "category": "code_tasks",
+    "difficulty": "easy",
+    "prompt": "Write a Python function to reverse a string.",
+    "expected_answer": "A correct solution is: def reverse_string(s: str) -> str: return s[::-1]"
+  },
+  {
+    "id": "code_2",
+    "category": "code_tasks",
+    "difficulty": "hard",
+    "prompt": "Find the bug in this code: def sum_to_n(n): total = 0\n    for i in range(1, n):\n        total += i\n    return total",
+    "expected_answer": "The loop has an off-by-one bug: range(1, n) excludes n. Use range(1, n + 1)."
+  },
+  {
+    "id": "code_3",
+    "category": "code_tasks",
+    "difficulty": "medium",
+    "prompt": "Write a SQL query to find duplicate emails in a users table.",
+    "expected_answer": "SELECT email, COUNT(*) AS cnt FROM users GROUP BY email HAVING COUNT(*) > 1;"
+  },
+  {
+    "id": "code_4",
+    "category": "code_tasks",
+    "difficulty": "medium",
+    "prompt": "What does this regex match: ^[a-z]{2,4}$",
+    "expected_answer": "It matches strings made only of lowercase letters a-z with length between 2 and 4, inclusive."
+  },
+  {
+    "id": "code_5",
+    "category": "code_tasks",
+    "difficulty": "medium",
+    "prompt": "Explain the difference between == and is in Python.",
+    "expected_answer": "== checks value equality, while is checks object identity (whether two references point to the same object)."
+  }
+]
