@@ -1,0 +1,151 @@
+[
+  {
+    "id": "tb05-01",
+    "snippet": "I prefer Python over TypeScript for backend work.",
+    "expected_facts": [
+      "Prefers Python for backend development",
+      "Prefers Python over TypeScript"
+    ],
+    "queries": [
+      {
+        "question": "Which backend language do I prefer?",
+        "expected_fact": "Prefers Python for backend development"
+      }
+    ]
+  },
+  {
+    "id": "tb05-02",
+    "snippet": "Remind me to review the PR on Monday morning.",
+    "expected_facts": [
+      "Has commitment to review a PR on Monday",
+      "Needs a Monday reminder"
+    ],
+    "queries": [
+      {
+        "question": "What am I supposed to do on Monday?",
+        "expected_fact": "Has commitment to review a PR on Monday"
+      }
+    ]
+  },
+  {
+    "id": "tb05-03",
+    "snippet": "The project uses Temporal for durable execution and retries.",
+    "expected_facts": [
+      "Project architecture uses Temporal",
+      "Temporal is used for durable execution"
+    ],
+    "queries": [
+      {
+        "question": "What powers workflow durability in this project?",
+        "expected_fact": "Project architecture uses Temporal"
+      }
+    ]
+  },
+  {
+    "id": "tb05-04",
+    "snippet": "I work at a tech company full-time and code on mycel evenings and weekends.",
+    "expected_facts": [
+      "Works full-time at a tech company",
+      "Codes on mycel in evenings and weekends"
+    ],
+    "queries": [
+      {
+        "question": "When does work on mycel usually happen?",
+        "expected_fact": "Codes on mycel in evenings and weekends"
+      }
+    ]
+  },
+  {
+    "id": "tb05-05",
+    "snippet": "I don't like daily standups, but I do want a weekly planning ritual.",
+    "expected_facts": [
+      "Dislikes daily standups",
+      "Wants a weekly planning ritual"
+    ],
+    "queries": [
+      {
+        "question": "What meeting cadence do I want?",
+        "expected_fact": "Wants a weekly planning ritual"
+      },
+      {
+        "question": "Do I want daily standups?",
+        "expected_fact": "Dislikes daily standups"
+      }
+    ]
+  },
+  {
+    "id": "tb05-06",
+    "snippet": "If we ship this week, I'll write the onboarding doc and set up CI alerts.",
+    "expected_facts": [
+      "Conditional commitment to write onboarding docs if shipping this week",
+      "Conditional commitment to set up CI alerts if shipping this week"
+    ],
+    "queries": [
+      {
+        "question": "What did I commit to do if we ship this week?",
+        "expected_fact": "Conditional commitment to write onboarding docs if shipping this week"
+      }
+    ]
+  },
+  {
+    "id": "tb05-07",
+    "snippet": "My laptop battery dies quickly now, so I should keep my charger in my backpack.",
+    "expected_facts": [
+      "Laptop battery health is poor",
+      "Should carry charger in backpack"
+    ],
+    "queries": [
+      {
+        "question": "Why should I keep a charger with me?",
+        "expected_fact": "Laptop battery health is poor"
+      }
+    ]
+  },
+  {
+    "id": "tb05-08",
+    "snippet": "Book flights to Lisbon and renew my passport this month.",
+    "expected_facts": [
+      "Needs to book flights to Lisbon",
+      "Needs to renew passport this month"
+    ],
+    "queries": [
+      {
+        "question": "What travel-related tasks are pending?",
+        "expected_fact": "Needs to renew passport this month"
+      }
+    ]
+  },
+  {
+    "id": "tb05-09",
+    "snippet": "I used to drink coffee every day, but now I only drink tea.",
+    "expected_facts": [
+      "Currently drinks tea",
+      "No longer drinks coffee daily"
+    ],
+    "queries": [
+      {
+        "question": "What do I drink now?",
+        "expected_fact": "Currently drinks tea"
+      }
+    ]
+  },
+  {
+    "id": "tb05-10",
+    "snippet": "I moved from Berlin to Austin last year, and my sister still lives in Berlin.",
+    "expected_facts": [
+      "Current location is Austin",
+      "Previously lived in Berlin",
+      "Sister lives in Berlin"
+    ],
+    "queries": [
+      {
+        "question": "Where am I based now?",
+        "expected_fact": "Current location is Austin"
+      },
+      {
+        "question": "Who in my family is in Berlin?",
+        "expected_fact": "Sister lives in Berlin"
+      }
+    ]
+  }
+]
