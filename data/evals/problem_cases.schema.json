@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ProblemCase",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "title",
+    "created_at",
+    "severity",
+    "tags",
+    "context",
+    "user_ask",
+    "observed_bad",
+    "expected_good"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["low", "med", "high"]
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "context": {
+      "type": "string",
+      "minLength": 1
+    },
+    "user_ask": {
+      "type": "string",
+      "minLength": 1
+    },
+    "observed_bad": {
+      "type": "string",
+      "minLength": 1
+    },
+    "expected_good": {
+      "type": "string",
+      "minLength": 1
+    },
+    "notes": {
+      "type": "string"
+    }
+  }
+}

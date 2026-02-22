@@ -36,6 +36,18 @@ A lean, Temporal-native AI assistant that grows a living knowledge network from 
 | 🗺️ [Roadmap](docs/ROADMAP.md) | Phases, milestones, GitHub issues |
 | 🎤 [Pitch](docs/PITCH.md) | What this is and why it matters |
 | 🔬 [OpenClaw Analysis](docs/OPENCLAW-ANALYSIS.md) | What we learned from the framework we're replacing |
+| 🧪 [Problem Cases](docs/PROBLEM-CASES.md) | Canonical eval failure cases rendered from JSONL |
+
+## Problem Cases Workflow
+
+Add a new line to `data/evals/problem_cases.jsonl` that matches `data/evals/problem_cases.schema.json`, then run:
+
+```bash
+python -m pip install jsonschema
+python scripts/render_problem_cases.py
+```
+
+Commit both the JSONL and generated `docs/PROBLEM-CASES.md`.
 
 ## Status
 
