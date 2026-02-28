@@ -73,6 +73,8 @@ export MYCEL_ALLOWED_USER_ID="<telegram-user-id>"
 export OPENROUTER_API_KEY="<openrouter-api-key>"
 ```
 
+Tip: if you do not know your Telegram user id yet, start the bot first and run `/m_whoami` to get it, then set `MYCEL_ALLOWED_USER_ID`.
+
 Optional:
 
 ```bash
@@ -96,6 +98,7 @@ PYTHONPATH=src python3 scripts/run_phase1_bot.py
 
 Telegram commands:
 - `/m_help`
+- `/m_whoami` (works without allowlist so you can discover your user id)
 - `/m_chat <text>`
 
 The bot ignores non-`/m_*` commands to stay coexistence-safe.

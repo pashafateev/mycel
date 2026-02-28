@@ -23,6 +23,7 @@ class TelegramBotApp:
         self._stop_event = asyncio.Event()
 
         self._app.add_handler(CommandHandler("m_help", self._on_m_help))
+        self._app.add_handler(CommandHandler("m_whoami", self._on_m_whoami))
         self._app.add_handler(CommandHandler("m_chat", self._on_m_chat))
 
     async def run_forever(self) -> None:
@@ -50,8 +51,22 @@ class TelegramBotApp:
         await update.effective_message.reply_text(
             "Commands:\n"
             "/m_help - show this message\n"
+            "/m_whoami - show your Telegram user id and username\n"
             "/m_chat <text> - send one chat turn through Temporal + OpenRouter"
         )
+
+    async def _on_m_whoami(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        user = update.effective_user
+        message = update.effective_message
+        if user is None or message is None:
+            return
+
+        lines = [f"user_id: {user.id}"]
+        if user.username:
+            lines.append(f"username: @{user.username}")
+        else:
+            lines.append("username: <not set>")
+        await message.reply_text("\n".join(lines))
 
     async def _on_m_chat(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         if not self._is_allowed_user(update):
