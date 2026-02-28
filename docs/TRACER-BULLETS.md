@@ -224,3 +224,12 @@
 - Day 5 (short): TB10 and transition decision
 
 This sequence maximizes learning-per-hour while protecting Pasha's limited build time and preserving optionality for the two-bot transition.
+
+## Wave 3-4 Results
+
+- `tb/04-openrouter-streaming` @ `d99d66f63bd366078328885b8bb610f2be268d77`
+  - Proved OpenRouter streaming path and transcript hygiene safeguards can be exercised as a focused spike (TB4).
+- `tb/09-durable-followup` @ `2e4f5bc5ab5f4aa41ea03145a31d4c73fff65144`
+  - Proved durable follow-up/reminder behavior through restart-focused scenarios (TB9).
+- `tb/10-two-bot-coexistence` @ `e6361d4af939ab4830914ddddb565a8da2dda5e0`
+  - Proved two-bot coexistence patterns and namespace routing viability for transition mode (TB10).
