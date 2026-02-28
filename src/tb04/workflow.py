@@ -20,6 +20,7 @@ class _LLMRequest:
     model: str
     temperature: float
     timeout_ms: int
+    use_stream: bool
 
 
 @workflow.defn
@@ -65,6 +66,7 @@ class LLMStreamTestWorkflow:
         model = str(request.get("model", DEFAULT_MODEL))
         temperature = float(request.get("temperature", 0.2))
         timeout_ms = int(request.get("timeout_ms", 10_000))
+        use_stream = bool(request.get("use_stream", True))
         self._queue.append(
             _LLMRequest(
                 request_id=request_id,
@@ -72,6 +74,7 @@ class LLMStreamTestWorkflow:
                 model=model,
                 temperature=temperature,
                 timeout_ms=timeout_ms,
+                use_stream=use_stream,
             )
         )
 
@@ -125,6 +128,7 @@ class LLMStreamTestWorkflow:
                     self._history,
                     req.temperature,
                     req.timeout_ms,
+                    req.use_stream,
                 ],
                 start_to_close_timeout=timedelta(seconds=30),
                 retry_policy=self._retry_policy,

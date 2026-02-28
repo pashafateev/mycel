@@ -135,6 +135,7 @@ async def _run_with_client(client: Client, mock_httpx: bool) -> int:
 
     if mock_httpx and not os.getenv("OPENROUTER_API_KEY"):
         os.environ["OPENROUTER_API_KEY"] = "mock-key"
+    os.environ.setdefault("TB4_STREAMING_ENABLED", "1")
 
     patch_ctx = patch("httpx.AsyncClient.stream", side_effect=_mock_stream) if mock_httpx else None
 
