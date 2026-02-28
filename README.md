@@ -47,4 +47,40 @@ See [issues](https://github.com/pashafateev/mycel/issues) for the full roadmap.
 
 ---
 
+## TB10: Two-Bot Coexistence Demo
+
+TB10 proves that two Telegram bots can coexist for the same user without command collisions by using explicit namespaces:
+
+- Mycel bot commands: `/m_*` (`/m_help`, `/m_ping`)
+- OpenClaw dummy bot commands: `/oc_*` (`/oc_help`, `/oc_ping`)
+
+### Setup
+
+```bash
+export TELEGRAM_BOT_TOKEN_MY="<mycel-bot-token>"
+export TELEGRAM_BOT_TOKEN_OC="<openclaw-dummy-token>"
+export TEMPORAL_ADDRESS="localhost:7233"   # optional
+```
+
+### Run both bots for ~30 minutes
+
+```bash
+./scripts/run_tb10_dual_bot.sh
+```
+
+Defaults:
+
+- Runtime is 1800 seconds (30 minutes)
+- Override with `TB10_RUNTIME_SECONDS=<seconds>`
+
+### Validate no accidental double handling
+
+In a Telegram chat where both bots are present, send:
+
+- `/m_help` -> only Mycel replies, prefixed with `[Mycel]`
+- `/oc_help` -> only dummy OpenClaw replies, prefixed with `[OpenClaw Dummy]`
+- `/m_ping hello` -> only Mycel replies
+- `/oc_ping hello` -> only dummy OpenClaw replies
+- `/ping hello` or plain text -> both bots ignore
+
 <sub>*mycel* — from mycelium, the underground network that connects forests. also: *my cell* — your personal thinking space. 🍄</sub>
