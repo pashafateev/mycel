@@ -107,6 +107,7 @@ Telegram commands:
 - `/m_status`
 - `/m_chat <text>`
 - `/m_fetch <url>`
+- `/m_note <text>`
 
 The bot ignores non-`/m_*` commands to stay coexistence-safe.
 
