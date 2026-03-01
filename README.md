@@ -104,6 +104,7 @@ PYTHONPATH=src python3 scripts/run_phase1_bot.py
 Telegram commands:
 - `/m_help`
 - `/m_whoami` (works without allowlist so you can discover your user id)
+- `/m_status`
 - `/m_chat <text>`
 
 The bot ignores non-`/m_*` commands to stay coexistence-safe.

@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import asyncio
+import platform
 import signal
 import uuid
 from datetime import timedelta
+from importlib.metadata import PackageNotFoundError, version
 
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
@@ -15,6 +17,34 @@ from mycel.temporal.workflows import ConversationWorkflow
 from mycel.utils.namespaces import is_mycel_command, parse_namespaced_command
 
 
+def _get_mycel_version() -> str:
+    try:
+        return version("mycel")
+    except PackageNotFoundError:
+        return "unknown"
+
+
+def format_status_block(config: AppConfig) -> str:
+    python_version = platform.python_version()
+    mycel_version = _get_mycel_version()
+    lines = [
+        "status:",
+        f"model: {config.openrouter.model}",
+        (
+            "temporal: "
+            f"address={config.temporal.address} "
+            f"namespace={config.temporal.namespace} "
+            f"task_queue={config.temporal.task_queue}"
+        ),
+        f"streaming_enabled: {str(config.openrouter.streaming_enabled).lower()}",
+        f"workspace_dir: {config.prompt.workspace_dir}",
+        f"allowed_user_id: {config.telegram.allowed_user_id}",
+        f"python_version: {python_version}",
+        f"mycel_version: {mycel_version}",
+    ]
+    return "\n".join(lines)
+
+
 class TelegramBotApp:
     def __init__(self, config: AppConfig, temporal_client: TemporalClient):
         self._config = config
@@ -24,6 +54,7 @@ class TelegramBotApp:
 
         self._app.add_handler(CommandHandler("m_help", self._on_m_help))
         self._app.add_handler(CommandHandler("m_whoami", self._on_m_whoami))
+        self._app.add_handler(CommandHandler("m_status", self._on_m_status))
         self._app.add_handler(CommandHandler("m_chat", self._on_m_chat))
 
     async def run_forever(self) -> None:
@@ -52,6 +83,7 @@ class TelegramBotApp:
             "Commands:\n"
             "/m_help - show this message\n"
             "/m_whoami - show your Telegram user id and username\n"
+            "/m_status - show current runtime status\n"
             "/m_chat <text> - send one chat turn through Temporal + OpenRouter"
         )
 
@@ -67,6 +99,14 @@ class TelegramBotApp:
         else:
             lines.append("username: <not set>")
         await message.reply_text("\n".join(lines))
+
+    async def _on_m_status(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        if not self._is_allowed_user(update):
+            return
+        message = update.effective_message
+        if message is None:
+            return
+        await message.reply_text(format_status_block(self._config))
 
     async def _on_m_chat(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         if not self._is_allowed_user(update):
