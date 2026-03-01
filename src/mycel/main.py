@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 
+from dotenv import load_dotenv
 from temporalio.client import Client as TemporalClient
 from temporalio.worker import Worker
 
@@ -29,6 +30,7 @@ async def run() -> None:
 
 
 def main() -> None:
+    load_dotenv()
     asyncio.run(run())
 
 

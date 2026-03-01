@@ -65,25 +65,30 @@ See [issues](https://github.com/pashafateev/mycel/issues) for the full roadmap.
 python3 -m pip install -e .
 ```
 
-### 2. Export required environment variables
+### 2. Create a local `.env` file
 
 ```bash
-export TELEGRAM_BOT_TOKEN="<telegram-bot-token>"
-export MYCEL_ALLOWED_USER_ID="<telegram-user-id>"
-export OPENROUTER_API_KEY="<openrouter-api-key>"
+cat > .env <<'EOF'
+TELEGRAM_BOT_TOKEN="<telegram-bot-token>"
+MYCEL_ALLOWED_USER_ID="<telegram-user-id>"
+OPENROUTER_API_KEY="<openrouter-api-key>"
+EOF
 ```
 
+Use placeholder values locally and never commit real tokens.
 Tip: if you do not know your Telegram user id yet, start the bot first and run `/m_whoami` to get it, then set `MYCEL_ALLOWED_USER_ID`.
 
 Optional:
 
 ```bash
-export TEMPORAL_ADDRESS="localhost:7233"
-export TEMPORAL_NAMESPACE="default"
-export MYCEL_TASK_QUEUE="mycel-phase1"
-export MYCEL_MODEL="openai/gpt-5.2"
-export MYCEL_STREAMING_ENABLED="0"
-export MYCEL_WORKSPACE_DIR="/path/to/workspace"
+cat >> .env <<'EOF'
+TEMPORAL_ADDRESS="localhost:7233"
+TEMPORAL_NAMESPACE="default"
+MYCEL_TASK_QUEUE="mycel-phase1"
+MYCEL_MODEL="openai/gpt-5.2"
+MYCEL_STREAMING_ENABLED="0"
+MYCEL_WORKSPACE_DIR="/path/to/workspace"
+EOF
 ```
 
 ### 3. Start Temporal Server
