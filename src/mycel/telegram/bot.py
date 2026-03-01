@@ -14,6 +14,7 @@ from temporalio.client import Client as TemporalClient
 from mycel.config import AppConfig
 from mycel.temporal.types import ConversationReply, ConversationRequest
 from mycel.temporal.workflows import ConversationWorkflow
+from mycel.tools.m_fetch import fetch_url_summary
 from mycel.utils.namespaces import is_mycel_command, parse_namespaced_command
 
 
@@ -56,6 +57,7 @@ class TelegramBotApp:
         self._app.add_handler(CommandHandler("m_whoami", self._on_m_whoami))
         self._app.add_handler(CommandHandler("m_status", self._on_m_status))
         self._app.add_handler(CommandHandler("m_chat", self._on_m_chat))
+        self._app.add_handler(CommandHandler("m_fetch", self._on_m_fetch))
 
     async def run_forever(self) -> None:
         loop = asyncio.get_running_loop()
@@ -84,7 +86,8 @@ class TelegramBotApp:
             "/m_help - show this message\n"
             "/m_whoami - show your Telegram user id and username\n"
             "/m_status - show current runtime status\n"
-            "/m_chat <text> - send one chat turn through Temporal + OpenRouter"
+            "/m_chat <text> - send one chat turn through Temporal + OpenRouter\n"
+            "/m_fetch <url> - fetch a URL and return a short summary"
         )
 
     async def _on_m_whoami(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -129,6 +132,28 @@ class TelegramBotApp:
             result_type=ConversationReply,
         )
         await update.effective_message.reply_text(reply.text)
+
+    async def _on_m_fetch(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        if not self._is_allowed_user(update):
+            return
+        text = update.effective_message.text if update.effective_message else ""
+        parsed = parse_namespaced_command(text or "")
+        if parsed is None or parsed.namespace != "m" or parsed.command != "fetch":
+            return
+        if not parsed.args:
+            await update.effective_message.reply_text("Usage: /m_fetch <http(s)://url>")
+            return
+
+        try:
+            summary = await asyncio.to_thread(fetch_url_summary, parsed.args)
+        except ValueError as exc:
+            await update.effective_message.reply_text(str(exc))
+            return
+        except RuntimeError as exc:
+            await update.effective_message.reply_text(str(exc))
+            return
+
+        await update.effective_message.reply_text(summary)
 
     def _is_allowed_user(self, update: Update) -> bool:
         user = update.effective_user

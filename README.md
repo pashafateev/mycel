@@ -106,6 +106,7 @@ Telegram commands:
 - `/m_whoami` (works without allowlist so you can discover your user id)
 - `/m_status`
 - `/m_chat <text>`
+- `/m_fetch <url>`
 
 The bot ignores non-`/m_*` commands to stay coexistence-safe.
 
