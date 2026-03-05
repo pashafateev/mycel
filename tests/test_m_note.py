@@ -3,7 +3,8 @@ from pathlib import Path
 
 import pytest
 
-from mycel.tools.m_note import append_note, ensure_within_workspace
+from mycel.tools.m_file import ensure_within_workspace
+from mycel.tools.m_note import append_note
 
 
 def test_ensure_within_workspace_blocks_outside_path(tmp_path: Path) -> None:

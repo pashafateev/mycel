@@ -108,6 +108,8 @@ Telegram commands:
 - `/m_chat <text>`
 - `/m_fetch <url>`
 - `/m_note <text>`
+- `/m_read <relative-path>`
+- `/m_write <relative-path> <content>`
 
 The bot ignores non-`/m_*` commands to stay coexistence-safe.
 

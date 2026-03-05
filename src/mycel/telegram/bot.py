@@ -15,6 +15,7 @@ from mycel.config import AppConfig
 from mycel.temporal.types import ConversationReply, ConversationRequest
 from mycel.temporal.workflows import ConversationWorkflow
 from mycel.tools.m_fetch import fetch_url_summary
+from mycel.tools.m_file import read_file, write_file
 from mycel.tools.m_note import append_note
 from mycel.utils.namespaces import is_mycel_command, parse_namespaced_command
 
@@ -60,6 +61,8 @@ class TelegramBotApp:
         self._app.add_handler(CommandHandler("m_chat", self._on_m_chat))
         self._app.add_handler(CommandHandler("m_fetch", self._on_m_fetch))
         self._app.add_handler(CommandHandler("m_note", self._on_m_note))
+        self._app.add_handler(CommandHandler("m_read", self._on_m_read))
+        self._app.add_handler(CommandHandler("m_write", self._on_m_write))
 
     async def run_forever(self) -> None:
         loop = asyncio.get_running_loop()
@@ -90,7 +93,9 @@ class TelegramBotApp:
             "/m_status - show current runtime status\n"
             "/m_chat <text> - send one chat turn through Temporal + OpenRouter\n"
             "/m_fetch <url> - fetch a URL and return a short summary\n"
-            "/m_note <text> - append a bullet to today's memory note"
+            "/m_note <text> - append a bullet to today's memory note\n"
+            "/m_read <relative-path> - read a workspace file (truncated)\n"
+            "/m_write <relative-path> <content> - overwrite a workspace file"
         )
 
     async def _on_m_whoami(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -180,6 +185,63 @@ class TelegramBotApp:
             return
 
         await update.effective_message.reply_text(f"Saved note to memory/{note_path.name}")
+
+    async def _on_m_read(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        if not self._is_allowed_user(update):
+            return
+        text = update.effective_message.text if update.effective_message else ""
+        parsed = parse_namespaced_command(text or "")
+        if parsed is None or parsed.namespace != "m" or parsed.command != "read":
+            return
+        if not parsed.args:
+            await update.effective_message.reply_text("Usage: /m_read <relative-path>")
+            return
+
+        try:
+            content = await asyncio.to_thread(
+                read_file,
+                self._config.prompt.workspace_dir,
+                parsed.args,
+            )
+        except ValueError as exc:
+            await update.effective_message.reply_text(str(exc))
+            return
+
+        await update.effective_message.reply_text(content)
+
+    async def _on_m_write(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        if not self._is_allowed_user(update):
+            return
+        text = update.effective_message.text if update.effective_message else ""
+        parsed = parse_namespaced_command(text or "")
+        if parsed is None or parsed.namespace != "m" or parsed.command != "write":
+            return
+        if not parsed.args:
+            await update.effective_message.reply_text("Usage: /m_write <relative-path> <content>")
+            return
+
+        parts = parsed.args.split(maxsplit=1)
+        if len(parts) != 2:
+            await update.effective_message.reply_text("Usage: /m_write <relative-path> <content>")
+            return
+        relative_path, content = parts
+        if not content:
+            await update.effective_message.reply_text("Usage: /m_write <relative-path> <content>")
+            return
+
+        try:
+            written_path = await asyncio.to_thread(
+                write_file,
+                self._config.prompt.workspace_dir,
+                relative_path,
+                content,
+            )
+        except ValueError as exc:
+            await update.effective_message.reply_text(str(exc))
+            return
+
+        relative_written = written_path.relative_to(self._config.prompt.workspace_dir.resolve())
+        await update.effective_message.reply_text(f"Wrote {relative_written.as_posix()}")
 
     def _is_allowed_user(self, update: Update) -> bool:
         user = update.effective_user

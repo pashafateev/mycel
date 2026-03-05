@@ -3,17 +3,7 @@ from __future__ import annotations
 from datetime import date
 from pathlib import Path
 
-
-def ensure_within_workspace(workspace_dir: Path, target_path: Path) -> Path:
-    workspace = workspace_dir.resolve()
-    target = target_path.resolve()
-
-    try:
-        target.relative_to(workspace)
-    except ValueError as exc:
-        raise ValueError("Refusing to write outside workspace.") from exc
-
-    return target
+from mycel.tools.m_file import ensure_within_workspace
 
 
 def append_note(workspace_dir: Path, text: str, *, note_date: date | None = None) -> Path:
