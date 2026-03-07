@@ -4,15 +4,18 @@ import asyncio
 import logging
 import platform
 import signal
+import time
 import uuid
 from datetime import timedelta
 from importlib.metadata import PackageNotFoundError, version
+from typing import Callable
 
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
 from temporalio.client import Client as TemporalClient
 
 from mycel.config import AppConfig
+from mycel.lifecycle import temporal_is_reachable
 from mycel.temporal.types import ConversationReply, ConversationRequest
 from mycel.temporal.workflows import ConversationWorkflow
 from mycel.tools.m_fetch import fetch_url_summary
@@ -52,14 +55,72 @@ def format_status_block(config: AppConfig) -> str:
     return "\n".join(lines)
 
 
+def format_health_status(
+    *,
+    telegram_connected: bool | None,
+    temporal_reachable: bool,
+    worker_running: bool,
+    task_queue: str,
+    namespace: str,
+    uptime_seconds: float,
+) -> str:
+    telegram_status = "connected" if telegram_connected else "unknown"
+    temporal_status = "reachable" if temporal_reachable else "unreachable"
+    worker_status = "running" if worker_running else "stopped"
+    uptime = format_uptime_seconds(uptime_seconds)
+    return (
+        f"telegram: {telegram_status}\n"
+        f"temporal: {temporal_status}\n"
+        f"worker: {worker_status}\n"
+        f"task_queue: {task_queue}\n"
+        f"namespace: {namespace}\n"
+        f"uptime: {uptime}"
+    )
+
+
+def format_uptime_seconds(uptime_seconds: float) -> str:
+    total_seconds = max(0, int(uptime_seconds))
+    hours, remainder = divmod(total_seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+
+
+def build_health_status(
+    config: AppConfig,
+    *,
+    started_at_monotonic: float,
+    now_monotonic: float | None = None,
+    telegram_connected: bool | None = True,
+    worker_running: bool = True,
+    temporal_check: Callable[[str], bool] | None = None,
+) -> str:
+    now = time.monotonic() if now_monotonic is None else now_monotonic
+    checker = temporal_is_reachable if temporal_check is None else temporal_check
+    try:
+        temporal_reachable = bool(checker(config.temporal.address))
+    except Exception:
+        temporal_reachable = False
+
+    return format_health_status(
+        telegram_connected=telegram_connected,
+        temporal_reachable=temporal_reachable,
+        worker_running=worker_running,
+        task_queue=config.temporal.task_queue,
+        namespace=config.temporal.namespace,
+        uptime_seconds=now - started_at_monotonic,
+    )
+
+
 class TelegramBotApp:
     def __init__(self, config: AppConfig, temporal_client: TemporalClient):
         self._config = config
         self._temporal_client = temporal_client
         self._app = Application.builder().token(config.telegram.bot_token).build()
         self._stop_event = asyncio.Event()
+        self._started_at_monotonic = time.monotonic()
 
         self._app.add_handler(CommandHandler("m_help", self._on_m_help))
+        self._app.add_handler(CommandHandler("m_health", self._on_m_health))
         self._app.add_handler(CommandHandler("m_whoami", self._on_m_whoami))
         self._app.add_handler(CommandHandler("m_status", self._on_m_status))
         self._app.add_handler(CommandHandler("m_chat", self._on_m_chat))
@@ -114,6 +175,7 @@ class TelegramBotApp:
         await update.effective_message.reply_text(
             "Commands:\n"
             "/m_help - show this message\n"
+            "/m_health - show compact health status\n"
             "/m_whoami - show your Telegram user id and username\n"
             "/m_status - show current runtime status\n"
             "/m_chat <text> - send one chat turn through Temporal + OpenRouter\n"
@@ -143,6 +205,21 @@ class TelegramBotApp:
         if message is None:
             return
         await message.reply_text(format_status_block(self._config))
+
+    async def _on_m_health(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        if not self._is_allowed_user(update):
+            return
+        message = update.effective_message
+        if message is None:
+            return
+        await message.reply_text(
+            build_health_status(
+                self._config,
+                started_at_monotonic=self._started_at_monotonic,
+                telegram_connected=True,
+                worker_running=True,
+            )
+        )
 
     async def _on_m_chat(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         if not self._is_allowed_user(update):

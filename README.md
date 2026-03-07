@@ -110,6 +110,7 @@ Useful commands:
 
 Telegram commands:
 - `/m_help`
+- `/m_health`
 - `/m_whoami` (works without allowlist so you can discover your user id)
 - `/m_status`
 - `/m_chat <text>`
