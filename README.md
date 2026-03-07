@@ -33,10 +33,13 @@ A lean, Temporal-native AI assistant that grows a living knowledge network from 
 | | |
 |---|---|
 | 📐 [Design](docs/DESIGN.md) | Architecture, principles, the Organization model |
+| 🧭 [Architecture Invariants](docs/ARCHITECTURE.md) | Phase 1 control-flow rules, tool guardrails, and issue map |
 | 🗺️ [Roadmap](docs/ROADMAP.md) | Phases, milestones, GitHub issues |
 | 🎤 [Pitch](docs/PITCH.md) | What this is and why it matters |
 | 🔬 [OpenClaw Analysis](docs/OPENCLAW-ANALYSIS.md) | What we learned from the framework we're replacing |
 | 🧪 [Problem Cases](docs/PROBLEM-CASES.md) | Canonical eval failure cases rendered from JSONL |
+
+New contributors should read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) before changing the workflow or tool execution path. It defines the current Phase 1 invariants: Temporal owns control flow, the LLM only proposes actions, and tool execution stays behind workflow validation.
 
 ## Problem Cases Workflow
 
