@@ -91,14 +91,21 @@ MYCEL_WORKSPACE_DIR="/path/to/workspace"
 EOF
 ```
 
-### 3. Start Temporal Server
+### 3. Start local Mycel
 
-Run your local Temporal dev server on `localhost:7233` before starting the bot.
-
-### 4. Run the MVP bot + worker
+Use the lifecycle script. It loads `.env`, checks `TEMPORAL_ADDRESS`, starts a local `temporal server start-dev` only when needed, then starts the combined bot + worker once.
 
 ```bash
-PYTHONPATH=src python3 scripts/run_phase1_bot.py
+./scripts/dev_up.sh
+```
+
+Runtime state is written under `.run/`. Logs go to `logs/mycel.log` and `logs/temporal.log`.
+
+Useful commands:
+
+```bash
+./scripts/dev_status.sh
+./scripts/dev_down.sh
 ```
 
 Telegram commands:
@@ -116,7 +123,7 @@ The bot ignores non-`/m_*` commands to stay coexistence-safe.
 ### 5. Run tests
 
 ```bash
-PYTHONPATH=src python3 -m pytest -q
+PYTHONPATH=src /opt/homebrew/bin/python3.11 -m pytest -q
 ```
 
 ---

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import platform
 import signal
 import uuid
@@ -18,6 +19,9 @@ from mycel.tools.m_fetch import fetch_url_summary
 from mycel.tools.m_file import read_file, write_file
 from mycel.tools.m_note import append_note
 from mycel.utils.namespaces import is_mycel_command, parse_namespaced_command
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 def _get_mycel_version() -> str:
@@ -66,21 +70,42 @@ class TelegramBotApp:
 
     async def run_forever(self) -> None:
         loop = asyncio.get_running_loop()
+        initialized = False
+        started = False
+        polling_started = False
         for sig in (signal.SIGINT, signal.SIGTERM):
             try:
                 loop.add_signal_handler(sig, self._stop_event.set)
             except NotImplementedError:
                 pass
 
-        await self._app.initialize()
-        await self._app.start()
-        await self._app.updater.start_polling(drop_pending_updates=True)
+        LOGGER.info("Initializing Telegram application")
+        try:
+            await self._app.initialize()
+            initialized = True
+            await self._app.start()
+            started = True
+            if self._app.updater is None:
+                raise RuntimeError("Telegram updater is unavailable")
+            await self._app.updater.start_polling(drop_pending_updates=True)
+            polling_started = True
+        except Exception as exc:
+            await self._shutdown(initialized=initialized, started=started, polling_started=polling_started)
+            raise RuntimeError("Failed to start Telegram polling") from exc
 
         try:
+            LOGGER.info("Telegram polling started")
             await self._stop_event.wait()
         finally:
+            LOGGER.info("Stopping Telegram application")
+            await self._shutdown(initialized=initialized, started=started, polling_started=polling_started)
+
+    async def _shutdown(self, *, initialized: bool, started: bool, polling_started: bool) -> None:
+        if polling_started and self._app.updater is not None:
             await self._app.updater.stop()
+        if started:
             await self._app.stop()
+        if initialized:
             await self._app.shutdown()
 
     async def _on_m_help(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
