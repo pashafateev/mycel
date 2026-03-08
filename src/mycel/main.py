@@ -11,7 +11,7 @@ from temporalio.worker import Worker
 from mycel.config import AppConfig
 from mycel.lifecycle import SingletonPidFile, runtime_dir_from_env
 from mycel.telegram.bot import TelegramBotApp
-from mycel.temporal.activities import generate_reply_activity
+from mycel.temporal.activities import decide_next_step_activity, execute_tool_activity
 from mycel.temporal.workflows import ConversationWorkflow
 
 
@@ -46,7 +46,7 @@ async def run() -> None:
                 temporal_client,
                 task_queue=config.temporal.task_queue,
                 workflows=[ConversationWorkflow],
-                activities=[generate_reply_activity],
+                activities=[decide_next_step_activity, execute_tool_activity],
             ):
                 await bot.run_forever()
         except Exception as exc:

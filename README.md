@@ -139,6 +139,7 @@ Telegram commands:
 - `/m_write <relative-path> <content>`
 
 The bot ignores non-`/m_*` commands to stay coexistence-safe.
+Plain text messages now also route through the Temporal conversation workflow, where the model can either answer directly or request one validated tool call at a time. The explicit `/m_fetch`, `/m_note`, `/m_read`, and `/m_write` commands remain available as direct debug/power-user paths.
 
 ### 5. Run tests
 

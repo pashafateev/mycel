@@ -11,7 +11,7 @@ from importlib.metadata import PackageNotFoundError, version
 from typing import Callable
 
 from telegram import Update
-from telegram.ext import Application, CommandHandler, ContextTypes
+from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 from temporalio.client import Client as TemporalClient
 
 from mycel.config import AppConfig
@@ -128,6 +128,7 @@ class TelegramBotApp:
         self._app.add_handler(CommandHandler("m_note", self._on_m_note))
         self._app.add_handler(CommandHandler("m_read", self._on_m_read))
         self._app.add_handler(CommandHandler("m_write", self._on_m_write))
+        self._app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self._on_text_message))
 
     async def run_forever(self) -> None:
         loop = asyncio.get_running_loop()
@@ -174,6 +175,7 @@ class TelegramBotApp:
             return
         await update.effective_message.reply_text(
             "Commands:\n"
+            "Plain text messages also route through the Temporal chat workflow.\n"
             "/m_help - show this message\n"
             "/m_health - show compact health status\n"
             "/m_whoami - show your Telegram user id and username\n"
@@ -232,10 +234,25 @@ class TelegramBotApp:
             await update.effective_message.reply_text("Usage: /m_chat <text>")
             return
 
+        await self._reply_with_workflow_result(update, parsed.args)
+
+    async def _on_text_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        if not self._is_allowed_user(update):
+            return
+        text = update.effective_message.text if update.effective_message else ""
+        if not text.strip():
+            return
+
+        await self._reply_with_workflow_result(update, text)
+
+    async def _reply_with_workflow_result(self, update: Update, text: str) -> None:
+        if update.effective_user is None or update.effective_message is None:
+            return
+
         workflow_id = f"mycel-{update.effective_user.id}-{uuid.uuid4().hex[:8]}"
         reply = await self._temporal_client.execute_workflow(
             ConversationWorkflow.run,
-            ConversationRequest(user_id=update.effective_user.id, text=parsed.args),
+            ConversationRequest(user_id=update.effective_user.id, text=text),
             id=workflow_id,
             task_queue=self._config.temporal.task_queue,
             run_timeout=timedelta(seconds=120),
@@ -353,4 +370,5 @@ class TelegramBotApp:
 
     @staticmethod
     def should_process_message(text: str) -> bool:
-        return is_mycel_command(text)
+        stripped = text.strip()
+        return bool(stripped) and (not stripped.startswith("/") or is_mycel_command(stripped))
