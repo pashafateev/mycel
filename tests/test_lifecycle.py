@@ -66,6 +66,19 @@ raise SystemExit(0)
     assert "already running" in completed.stdout
 
 
+def test_singleton_pid_file_overwrites_stale_runtime_state(tmp_path: Path) -> None:
+    runtime_dir = tmp_path / "run"
+    runtime_dir.mkdir(parents=True)
+    state_path = runtime_dir / "mycel.pid"
+    state_path.write_text('{"pid": 999999, "command": "stale"}\n', encoding="utf-8")
+
+    with SingletonPidFile(runtime_dir, "mycel", "bot+worker"):
+        state = read_runtime_state(state_path)
+        assert state is not None
+        assert state.pid == os.getpid()
+        assert state.command == "bot+worker"
+
+
 def test_temporal_is_reachable_detects_listening_socket() -> None:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
         server.bind(("127.0.0.1", 0))

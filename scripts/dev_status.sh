@@ -1,61 +1,19 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-cd "$ROOT_DIR"
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/dev_runtime.sh"
 
-RUNTIME_DIR="${ROOT_DIR}/.run"
-LOG_DIR="${ROOT_DIR}/logs"
-TEMPORAL_STATE="${RUNTIME_DIR}/temporal.started_by_dev_up"
-
-if [[ -f "${ROOT_DIR}/.env" ]]; then
-  set -a
-  source "${ROOT_DIR}/.env"
-  set +a
-fi
-
-TEMPORAL_ADDRESS="${TEMPORAL_ADDRESS:-localhost:7233}"
-TEMPORAL_NAMESPACE="${TEMPORAL_NAMESPACE:-default}"
-MYCEL_TASK_QUEUE="${MYCEL_TASK_QUEUE:-mycel-phase1}"
-export TEMPORAL_ADDRESS TEMPORAL_NAMESPACE MYCEL_TASK_QUEUE
-
-if [[ -x /opt/homebrew/bin/python3.11 ]]; then
-  PYTHON_BIN="/opt/homebrew/bin/python3.11"
-else
-  PYTHON_BIN="${PYTHON_BIN:-$(command -v python3)}"
-fi
-
-runtime_state() {
-  local path="$1"
-  PYTHONPATH=src "$PYTHON_BIN" - "$path" <<'PY'
-from pathlib import Path
-import sys
-from mycel.lifecycle import read_runtime_state
-
-state = read_runtime_state(Path(sys.argv[1]))
-if state is None:
-    print("")
-else:
-    print(f"{state.pid}|{state.command}")
-PY
-}
-
-pid_is_running() {
-  local pid="$1"
-  if [[ -z "$pid" ]]; then
-    return 1
+SUPERVISOR_STATE="$(runtime_state "${RUNTIME_DIR}/supervisor.pid")"
+if [[ -n "$SUPERVISOR_STATE" ]]; then
+  SUPERVISOR_PID="${SUPERVISOR_STATE%%|*}"
+  if pid_is_running "$SUPERVISOR_PID"; then
+    echo "supervisor: running (pid=${SUPERVISOR_PID})"
+  else
+    echo "supervisor: stale pid file (pid=${SUPERVISOR_PID})"
   fi
-  kill -0 "$pid" >/dev/null 2>&1
-}
-
-temporal_is_reachable() {
-  PYTHONPATH=src "$PYTHON_BIN" - <<'PY'
-import os
-from mycel.lifecycle import temporal_is_reachable
-
-raise SystemExit(0 if temporal_is_reachable(os.environ["TEMPORAL_ADDRESS"]) else 1)
-PY
-}
+else
+  echo "supervisor: stopped"
+fi
 
 MYCEL_STATE="$(runtime_state "${RUNTIME_DIR}/mycel.pid")"
 if [[ -n "$MYCEL_STATE" ]]; then

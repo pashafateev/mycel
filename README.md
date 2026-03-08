@@ -96,13 +96,29 @@ EOF
 
 ### 3. Start local Mycel
 
-Use the lifecycle script. It loads `.env`, checks `TEMPORAL_ADDRESS`, starts a local `temporal server start-dev` only when needed, then starts the combined bot + worker once.
+Use the lifecycle scripts. They load `.env`, check `TEMPORAL_ADDRESS`, start a local `temporal server start-dev` only when needed, and manage runtime state under `.run/`.
 
 ```bash
 ./scripts/dev_up.sh
 ```
 
-Runtime state is written under `.run/`. Logs go to `logs/mycel.log` and `logs/temporal.log`.
+Recommended local flow:
+
+```bash
+./scripts/dev_up.sh
+./scripts/dev_status.sh
+./scripts/dev_down.sh
+```
+
+`dev_up` runs the bot + worker once in the background. If you want local self-healing restarts during development, use the optional supervisor instead:
+
+```bash
+./scripts/dev_supervisor.sh
+```
+
+That keeps the same runtime layout, restarts the bot after unexpected exits, and logs supervisor activity to `logs/mycel-supervisor.log`.
+
+Runtime state is written under `.run/`. Logs go to `logs/mycel.log`, `logs/mycel-supervisor.log`, and `logs/temporal.log`.
 
 Useful commands:
 
