@@ -31,5 +31,6 @@ def test_is_mycel_command() -> None:
 
 def test_should_process_message_supports_hybrid_mode() -> None:
     assert TelegramBotApp.should_process_message("hello") is True
+    assert TelegramBotApp.should_process_message("summarize https://example.com") is True
     assert TelegramBotApp.should_process_message("/m_chat hello") is True
     assert TelegramBotApp.should_process_message("/start") is False

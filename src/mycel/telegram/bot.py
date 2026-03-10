@@ -128,7 +128,7 @@ class TelegramBotApp:
         self._app.add_handler(CommandHandler("m_note", self._on_m_note))
         self._app.add_handler(CommandHandler("m_read", self._on_m_read))
         self._app.add_handler(CommandHandler("m_write", self._on_m_write))
-        self._app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self._on_text_message))
+        self._app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self._on_natural_language))
 
     async def run_forever(self) -> None:
         loop = asyncio.get_running_loop()
@@ -175,7 +175,7 @@ class TelegramBotApp:
             return
         await update.effective_message.reply_text(
             "Commands:\n"
-            "Plain text messages also route through the Temporal chat workflow.\n"
+            "Natural language mode: plain text messages route through the Temporal chat workflow.\n"
             "/m_help - show this message\n"
             "/m_health - show compact health status\n"
             "/m_whoami - show your Telegram user id and username\n"
@@ -236,7 +236,7 @@ class TelegramBotApp:
 
         await self._reply_with_workflow_result(update, parsed.args)
 
-    async def _on_text_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    async def _on_natural_language(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         if not self._is_allowed_user(update):
             return
         text = update.effective_message.text if update.effective_message else ""
