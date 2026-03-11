@@ -1,3 +1,10 @@
+import asyncio
+from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import AsyncMock
+
+from mycel.config import AppConfig, OpenRouterConfig, PromptConfig, TelegramConfig, TemporalConfig
+from mycel.temporal.types import ConversationReply, ConversationRequest
 from mycel.utils.namespaces import is_mycel_command, parse_namespaced_command
 from mycel.telegram.bot import TelegramBotApp
 
@@ -34,3 +41,37 @@ def test_should_process_message_supports_hybrid_mode() -> None:
     assert TelegramBotApp.should_process_message("summarize https://example.com") is True
     assert TelegramBotApp.should_process_message("/m_chat hello") is True
     assert TelegramBotApp.should_process_message("/start") is False
+
+
+def test_on_natural_language_routes_raw_text_through_conversation_workflow(caplog) -> None:
+    bot = TelegramBotApp.__new__(TelegramBotApp)
+    bot._config = AppConfig(
+        telegram=TelegramConfig(bot_token="telegram-secret-token", allowed_user_id=42),
+        temporal=TemporalConfig(task_queue="mycel-phase1"),
+        openrouter=OpenRouterConfig(api_key="openrouter-secret-key"),
+        prompt=PromptConfig(workspace_dir=Path("/tmp/workspace")),
+    )
+    bot._temporal_client = SimpleNamespace(
+        execute_workflow=AsyncMock(return_value=ConversationReply(text="summary"))
+    )
+
+    message = SimpleNamespace(
+        text="summarize https://example.com",
+        reply_text=AsyncMock(),
+    )
+    update = SimpleNamespace(
+        effective_user=SimpleNamespace(id=42),
+        effective_message=message,
+    )
+
+    with caplog.at_level("INFO"):
+        asyncio.run(bot._on_natural_language(update, None))
+
+    bot._temporal_client.execute_workflow.assert_awaited_once()
+    workflow_call = bot._temporal_client.execute_workflow.await_args
+    assert workflow_call.args[1] == ConversationRequest(
+        user_id=42,
+        text="summarize https://example.com",
+    )
+    message.reply_text.assert_awaited_once_with("summary")
+    assert "Natural language handler fired" in caplog.text

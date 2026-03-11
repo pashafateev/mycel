@@ -242,6 +242,7 @@ class TelegramBotApp:
         text = update.effective_message.text if update.effective_message else ""
         if not text.strip():
             return
+        LOGGER.info("Natural language handler fired for user_id=%s text=%r", update.effective_user.id, text)
 
         await self._reply_with_workflow_result(update, text)
 
@@ -250,6 +251,7 @@ class TelegramBotApp:
             return
 
         workflow_id = f"mycel-{update.effective_user.id}-{uuid.uuid4().hex[:8]}"
+        LOGGER.info("Dispatching ConversationWorkflow for user_id=%s workflow_id=%s", update.effective_user.id, workflow_id)
         reply = await self._temporal_client.execute_workflow(
             ConversationWorkflow.run,
             ConversationRequest(user_id=update.effective_user.id, text=text),
