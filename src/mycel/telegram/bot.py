@@ -249,11 +249,30 @@ class TelegramBotApp:
         if update.effective_user is None or update.effective_message is None:
             return
 
+        LOGGER.info(
+            "_reply_with_workflow_result fired for user_id=%s text=%r",
+            update.effective_user.id,
+            text,
+        )
+        parsed = parse_namespaced_command(text)
+        workflow_text = parsed.args if parsed is not None and parsed.args else text.strip()
+        if not workflow_text:
+            LOGGER.info(
+                "Skipping ConversationWorkflow dispatch for user_id=%s due to empty workflow text",
+                update.effective_user.id,
+            )
+            return
+
         workflow_id = f"mycel-{update.effective_user.id}-{uuid.uuid4().hex[:8]}"
-        LOGGER.info("Dispatching ConversationWorkflow for user_id=%s workflow_id=%s", update.effective_user.id, workflow_id)
+        LOGGER.info(
+            "Dispatching ConversationWorkflow for user_id=%s workflow_id=%s workflow_text=%r",
+            update.effective_user.id,
+            workflow_id,
+            workflow_text,
+        )
         reply = await self._temporal_client.execute_workflow(
             ConversationWorkflow.run,
-            ConversationRequest(user_id=update.effective_user.id, text=text),
+            ConversationRequest(user_id=update.effective_user.id, text=workflow_text),
             id=workflow_id,
             task_queue=self._config.temporal.task_queue,
             run_timeout=timedelta(seconds=120),

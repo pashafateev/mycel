@@ -78,3 +78,5 @@ def test_on_natural_language_routes_raw_text_through_conversation_workflow(caplo
     assert workflow_call.kwargs["result_type"] is ConversationReply
     message.reply_text.assert_awaited_once_with("summary")
     assert "Natural language handler fired" in caplog.text
+    assert "_reply_with_workflow_result fired" in caplog.text
+    assert "workflow_text='summarize https://example.com'" in caplog.text
