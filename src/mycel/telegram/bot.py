@@ -234,7 +234,7 @@ class TelegramBotApp:
             await update.effective_message.reply_text("Usage: /m_chat <text>")
             return
 
-        await self._reply_with_namespaced_workflow_result(update, parsed.args)
+        await self._reply_with_workflow_result(update, parsed.args)
 
     async def _on_natural_language(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         if not self._is_allowed_user(update):
@@ -243,20 +243,9 @@ class TelegramBotApp:
         if not text.strip():
             return
         LOGGER.info("Natural language handler fired for user_id=%s text=%r", update.effective_user.id, text)
+        await self._reply_with_workflow_result(update, text)
 
-        workflow_id = f"mycel-{update.effective_user.id}-{uuid.uuid4().hex[:8]}"
-        LOGGER.info("Dispatching ConversationWorkflow for user_id=%s workflow_id=%s", update.effective_user.id, workflow_id)
-        reply = await self._temporal_client.execute_workflow(
-            ConversationWorkflow.run,
-            ConversationRequest(user_id=update.effective_user.id, text=text),
-            id=workflow_id,
-            task_queue=self._config.temporal.task_queue,
-            run_timeout=timedelta(seconds=120),
-            result_type=ConversationReply,
-        )
-        await update.effective_message.reply_text(reply.text)
-
-    async def _reply_with_namespaced_workflow_result(self, update: Update, text: str) -> None:
+    async def _reply_with_workflow_result(self, update: Update, text: str) -> None:
         if update.effective_user is None or update.effective_message is None:
             return
 
