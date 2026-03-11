@@ -69,9 +69,12 @@ def test_on_natural_language_routes_raw_text_through_conversation_workflow(caplo
 
     bot._temporal_client.execute_workflow.assert_awaited_once()
     workflow_call = bot._temporal_client.execute_workflow.await_args
+    assert workflow_call.args[0].__qualname__ == "ConversationWorkflow.run"
     assert workflow_call.args[1] == ConversationRequest(
         user_id=42,
         text="summarize https://example.com",
     )
+    assert workflow_call.kwargs["task_queue"] == "mycel-phase1"
+    assert workflow_call.kwargs["result_type"] is ConversationReply
     message.reply_text.assert_awaited_once_with("summary")
     assert "Natural language handler fired" in caplog.text

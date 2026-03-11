@@ -5,7 +5,7 @@ cd "$ROOT_DIR"
 
 RUNTIME_DIR="${ROOT_DIR}/.run"
 LOG_DIR="${ROOT_DIR}/logs"
-MYCEL_LOG="${LOG_DIR}/mycel.log"
+MYCEL_LOG="${LOG_DIR}/mycel-bot.log"
 SUPERVISOR_LOG="${LOG_DIR}/mycel-supervisor.log"
 TEMPORAL_LOG="${LOG_DIR}/temporal.log"
 TEMPORAL_STATE="${RUNTIME_DIR}/temporal.started_by_dev_up"

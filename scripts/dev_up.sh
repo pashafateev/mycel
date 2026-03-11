@@ -23,6 +23,7 @@ if ! ensure_temporal; then
   exit 1
 fi
 
+mkdir -p "$LOG_DIR"
 : > "$MYCEL_LOG"
 nohup env \
   PYTHONPATH=src \
